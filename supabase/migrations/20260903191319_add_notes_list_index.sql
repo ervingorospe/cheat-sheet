@@ -1,0 +1,1 @@
+create index idx_notes_user_created_at on public.notes (user_id, created_at desc);

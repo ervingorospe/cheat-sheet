@@ -3,6 +3,9 @@
 # dependencies
 node_modules/
 
+supabase/functions/*.env*.local
+supabase.rtf
+
 # Expo
 .expo/
 dist/
