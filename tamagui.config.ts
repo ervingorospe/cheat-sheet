@@ -40,7 +40,7 @@ const colors = {
   secondary: "#38BDF8",
   secondaryLight: "#5FCAF9",
 
-  textHeader: "#F8FAFC",
+  textHeader: "#c6c8c9",
   textSecondary: "#38BDF8",
   textBody: "#CBD5E1",
   muted: "#94A3B8",

@@ -134,14 +134,13 @@ Treat these media items as parts of ONE potentially connected topic, tutorial, l
 Do NOT generate separate notes for each image.
 
 Instead:
-1. Identify the common topic connecting the media.
-2. Understand the information across all images together.
-3. Combine related information.
-4. Preserve important details, code, terminology, examples, diagrams, and explanations.
-5. Avoid repeating the same information.
-6. Organize the information into one cohesive set of study notes.
-7. If the images appear to be sequential screenshots or pages, understand them in their provided order.
-8. If some images contain supporting information for another image, combine that context.
+1. Get all the ideas from each image and translate it to text.
+2. Understand the information for each images.
+3. Preserve important details, code, terminology, examples, diagrams, and explanations.
+4. Avoid repeating the same information.
+5. Organize the information into logical orders.
+6. After translating the image to text, provide additional idea to support the information.
+8. Provide websites or URL for relevant documentations.
 
 Extract visible text, code, diagrams, concepts, explanations, and important details.
 

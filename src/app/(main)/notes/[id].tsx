@@ -1,9 +1,10 @@
 import Screen from "@/components/layout/screen";
-import { H2, Paragraph, SizableText } from "@/components/theme";
+import NoteDetailSkeleton from "@/components/notes/note-detail-skeleton";
+import { H3, Paragraph, SizableText } from "@/components/theme";
 import { useNote } from "@/hooks/use-note";
 import { useLocalSearchParams } from "expo-router";
 import { ScrollView } from "react-native";
-import { Spinner, XStack, YStack } from "tamagui";
+import { XStack, YStack } from "tamagui";
 
 function formatDate(isoString: string): string {
   return new Date(isoString).toLocaleDateString(undefined, {
@@ -20,9 +21,12 @@ export default function NoteDetailScreen() {
   if (isLoading) {
     return (
       <Screen>
-        <YStack flex={1} alignItems="center" justifyContent="center">
-          <Spinner size="large" color="$primary" />
-        </YStack>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ padding: 20 }}
+        >
+          <NoteDetailSkeleton />
+        </ScrollView>
       </Screen>
     );
   }
@@ -31,9 +35,7 @@ export default function NoteDetailScreen() {
     return (
       <Screen>
         <YStack flex={1} alignItems="center" justifyContent="center">
-          <Paragraph color="$secondary">
-            This note could not be found.
-          </Paragraph>
+          <Paragraph color="$muted">This note could not be found.</Paragraph>
         </YStack>
       </Screen>
     );
@@ -49,8 +51,8 @@ export default function NoteDetailScreen() {
         contentContainerStyle={{ padding: 20 }}
         showsVerticalScrollIndicator={false}
       >
-        <H2>{note.title || "Untitled note"}</H2>
-        <Paragraph color="$secondary" marginTop="$xs" marginBottom="$lg">
+        <H3>{note.title || "Untitled note"}</H3>
+        <Paragraph color="$muted" marginTop="$xs" marginBottom="$lg">
           {formatDate(note.created_at)}
         </Paragraph>
 

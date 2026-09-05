@@ -24,9 +24,11 @@ export function useMediaPicker(options: UseMediaPickerOptions = {}) {
 
   const pickFromLibrary = useCallback(async (): Promise<PickedMedia[]> => {
     showLoading();
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
+
     try {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+
       if (status !== "granted") {
         console.warn("Media library permission was not granted");
         toast("Media library permission was not granted");
@@ -45,7 +47,9 @@ export function useMediaPicker(options: UseMediaPickerOptions = {}) {
         return [];
       }
 
-      const compressed = await Promise.all(result.assets.map(compressImageAsset));
+      const compressed = await Promise.all(
+        result.assets.map(compressImageAsset)
+      );
 
       return compressed;
     } catch (error) {
@@ -54,12 +58,13 @@ export function useMediaPicker(options: UseMediaPickerOptions = {}) {
 
       return [];
     } finally {
-      hideLoading()
+      hideLoading();
     }
-  }, [selectionLimit]);
+  }, [selectionLimit, showLoading, hideLoading]);
 
   const pickFromCamera = useCallback(async (): Promise<PickedMedia | null> => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    const { status } =
+      await ImagePicker.requestCameraPermissionsAsync();
 
     if (status !== "granted") {
       console.warn("Camera permission was not granted");
@@ -78,19 +83,24 @@ export function useMediaPicker(options: UseMediaPickerOptions = {}) {
     return compressImageAsset(result.assets[0]);
   }, []);
 
-  return { pickFromLibrary, pickFromCamera };
+  return {
+    pickFromLibrary,
+    pickFromCamera,
+  };
 }
 
-async function compressImageAsset(asset: ImagePicker.ImagePickerAsset): Promise<PickedMedia> {
-  const { show: showLoading, hide: hideLoading } = useLoadingOverlay();
-
+async function compressImageAsset(
+  asset: ImagePicker.ImagePickerAsset
+): Promise<PickedMedia> {
   try {
-    showLoading();
-
     const context = ImageManipulator.manipulate(asset.uri);
-    context.resize({ width: MAX_IMAGE_DIMENSION });
+
+    context.resize({
+      width: MAX_IMAGE_DIMENSION,
+    });
 
     const renderedImage = await context.renderAsync();
+
     const result = await renderedImage.saveAsync({
       compress: 0.7,
       format: SaveFormat.JPEG,
@@ -104,9 +114,8 @@ async function compressImageAsset(asset: ImagePicker.ImagePickerAsset): Promise<
     };
   } catch (error) {
     console.error("Failed to compress image, using original:", error);
+
     return mapAssetToPickedMedia(asset);
-  } finally {
-    hideLoading()
   }
 }
 

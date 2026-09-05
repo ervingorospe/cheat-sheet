@@ -8,7 +8,7 @@ import {
 } from "tamagui";
 
 const headingStyles = {
-  color: "$textHeader",
+  color: "$textSecondary",
 };
 
 export const H1 = styled(TamaguiH1, {

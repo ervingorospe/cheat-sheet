@@ -15,7 +15,7 @@ export default function NoteCardSkeleton() {
             height={20}
             width="70%"
             borderRadius="$sm"
-            backgroundColor="$backgroundPress"
+            backgroundColor="$paperVariant"
           />
 
           {/* Content */}
@@ -24,14 +24,14 @@ export default function NoteCardSkeleton() {
               height={16}
               width="100%"
               borderRadius="$sm"
-              backgroundColor="$backgroundPress"
+              backgroundColor="$paperVariant"
             />
 
             <YStack
               height={16}
               width="85%"
               borderRadius="$sm"
-              backgroundColor="$backgroundPress"
+              backgroundColor="$paperVariant"
             />
           </YStack>
 
@@ -40,7 +40,7 @@ export default function NoteCardSkeleton() {
             height={12}
             width="25%"
             borderRadius="$sm"
-            backgroundColor="$backgroundPress"
+            backgroundColor="$paperVariant"
           />
         </YStack>
       </Paper>
