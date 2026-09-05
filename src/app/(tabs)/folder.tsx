@@ -1,5 +1,10 @@
-import { Text } from "react-native";
+import Screen from "@/components/layout/screen";
+import { SizableText } from "@/components/theme";
 
 export default function FolderScreen() {
-  return <Text>folder</Text>;
+  return (
+    <Screen>
+      <SizableText>Folder</SizableText>
+    </Screen>
+  );
 }

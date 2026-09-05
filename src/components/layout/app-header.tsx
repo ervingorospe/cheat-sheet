@@ -28,7 +28,7 @@ export default function AppHeader({
       width="100%"
       paddingVertical="$4"
       backgroundColor="$paper"
-      paddingHorizontal="$5"
+      paddingHorizontal="$6"
       borderBottomLeftRadius="$10"
       borderBottomRightRadius="$10"
       elevation={2}
@@ -47,17 +47,11 @@ export default function AppHeader({
             {isBack && <BackButton />}
 
             <GradientLinear>
-              <SizableText fontSize="$4" fontWeight="700">
-                {isHome ? "Welcome back," : title}
+              <SizableText fontSize="$6" fontWeight="700">
+                {isHome ? "Welcome back" : title}
               </SizableText>
             </GradientLinear>
           </XStack>
-
-          {isHome && (
-            <SizableText color="$textHeader" fontSize="$3">
-              {name}
-            </SizableText>
-          )}
         </YStack>
 
         <AppAvatar user={user} link="/profile" />

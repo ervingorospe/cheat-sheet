@@ -9,7 +9,7 @@ const titleMap: Record<string, string> = {
 
 export default function TabLayout() {
   const pathname = usePathname();
-  const title = titleMap[pathname];
+  const title = titleMap[pathname] ?? "";
 
   return (
     <YStack flex={1} backgroundColor="$background">

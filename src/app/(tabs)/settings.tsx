@@ -1,5 +1,10 @@
-import { Text } from "react-native";
+import Screen from "@/components/layout/screen";
+import { SizableText } from "@/components/theme";
 
 export default function SettingsScreen() {
-  return <Text>Settings</Text>;
+  return (
+    <Screen>
+      <SizableText>Settings</SizableText>
+    </Screen>
+  );
 }

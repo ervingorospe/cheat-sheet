@@ -9,7 +9,7 @@ import { useCallback, useRef, useState } from "react";
 export function useNoteGeneration() {
   const [isGenerating, setIsGenerating] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const { show: showLoading, hide: hideLoading } = useLoadingOverlay();
+  const { hide: hideLoading } = useLoadingOverlay();
 
   const cancelGeneration = useCallback(() => {
     abortControllerRef.current?.abort();
@@ -25,7 +25,6 @@ export function useNoteGeneration() {
       abortControllerRef.current = controller;
 
       setIsGenerating(true);
-      showLoading({ message, onCancel: cancelGeneration });
 
       try {
         const items = mediaItems.map((media) => {
@@ -79,7 +78,7 @@ export function useNoteGeneration() {
         abortControllerRef.current = null;
       }
     },
-    [showLoading, hideLoading, cancelGeneration],
+    [hideLoading, cancelGeneration],
   );
 
   return { generateNotes, isGenerating, cancelGeneration };

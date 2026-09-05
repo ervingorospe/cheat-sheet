@@ -2,16 +2,18 @@ import { Paper } from "@/components/theme";
 import { NoteListItem } from "@/lib/notes";
 import { formatDate } from "@/utils/date";
 import { Link } from "expo-router";
-import { forwardRef } from "react";
+import { forwardRef, memo } from "react";
 import { GetProps, SizableText, YStack } from "tamagui";
 
-export default function NoteCard({ note }: { note: NoteListItem }) {
+function NoteCard({ note }: { note: NoteListItem }) {
   return (
-    <Link href={`/notes/${note.id}`} asChild>
+    <Link href={{ pathname: "/notes/[id]", params: { id: note.id } }} asChild>
       <NoteCardContent note={note} />
     </Link>
   );
 }
+
+export default memo(NoteCard);
 
 type NoteCardContentProps = { note: NoteListItem } & GetProps<typeof Paper>;
 

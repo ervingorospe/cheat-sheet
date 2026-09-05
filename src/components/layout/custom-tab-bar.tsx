@@ -51,7 +51,7 @@ const NavIcon = forwardRef<any, NavIconProps>(
       <YStack
         ref={ref}
         padding="10"
-        borderBottomWidth={isActive ? 3 : 0}
+        borderBottomWidth={3}
         borderBottomColor={isActive ? "$secondary" : "transparent"}
         scale={isActive ? 1 : 0.95}
         transition="quick"

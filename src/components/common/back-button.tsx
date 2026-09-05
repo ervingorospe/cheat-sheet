@@ -5,8 +5,6 @@ import { XStack } from "tamagui";
 export default function BackButton() {
   return (
     <XStack
-      width="$4"
-      height="$4"
       alignItems="center"
       justifyContent="center"
       pressStyle={{
@@ -14,6 +12,7 @@ export default function BackButton() {
         scale: 0.95,
       }}
       marginLeft="$-3"
+      marginRight="$2"
       onPress={() => router.back()}
     >
       <ArrowLeft size="$1" color="$primary" />

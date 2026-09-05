@@ -1,27 +1,30 @@
 import ExpandableActionButton from "@/components/common/expandable-action-button";
 import { PickedMedia, useMediaPicker } from "@/hooks/use-media-picker";
 import { useNoteGeneration } from "@/hooks/use-note-generation";
+import { getFriendlyErrorMessage } from "@/lib/errors";
 import { createNote } from "@/lib/notes";
 import { useLoadingOverlay } from "@/providers/loading-overlay-provider";
+import { useToast } from "@/providers/toast-provider";
 import { Camera, Upload } from "@tamagui/lucide-icons-2";
 
 export default function ExpandableAction() {
   const { pickFromLibrary, pickFromCamera } = useMediaPicker();
-  const { generateNotes } = useNoteGeneration();
+  const { generateNotes, cancelGeneration } = useNoteGeneration();
   const { show: showLoading, hide: hideLoading } = useLoadingOverlay();
+  const { showToast } = useToast();
 
   const generateAndSave = async (mediaItems: PickedMedia[]) => {
+    showLoading({ message: "Generating Notes...", onCancel: cancelGeneration });
     const generationResult = await generateNotes(mediaItems);
 
     if (generationResult.cancelled) return;
 
     if (generationResult.error || !generationResult.data) {
       console.error("Failed to generate notes:", generationResult.error);
+      showToast(getFriendlyErrorMessage(generationResult.error));
       return;
     }
 
-    // generateNotes left the overlay showing on success — update its
-    // message and continue, rather than a hide/show flicker.
     showLoading({ message: "Saving your note..." });
 
     const { error: saveError } = await createNote(generationResult.data);
@@ -30,6 +33,7 @@ export default function ExpandableAction() {
 
     if (saveError) {
       console.error("Failed to save note:", saveError);
+      showToast(getFriendlyErrorMessage(saveError));
       return;
     }
 
