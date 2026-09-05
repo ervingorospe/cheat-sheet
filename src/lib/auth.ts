@@ -40,7 +40,6 @@ export async function signInWithOAuth(provider: OAuthProvider): Promise<LoginRes
       options: {
         redirectTo,
         skipBrowserRedirect: true,
-        queryParams: { prompt: "select_account" },
       },
     });
 

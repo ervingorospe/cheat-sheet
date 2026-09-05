@@ -9,8 +9,10 @@ import * as WebBrowser from "expo-web-browser";
 import {
   createContext,
   PropsWithChildren,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -67,31 +69,35 @@ export function AuthProvider({ children }: PropsWithChildren) {
     return () => listener.subscription.unsubscribe();
   }, [hideLoading]);
 
-  const login = async (data: LoginRequest): Promise<LoginResponse> => {
-    setIsLoading(true);
-    showLoading({ message: "Logging in..." });
+  const login = useCallback(
+    async (data: LoginRequest): Promise<LoginResponse> => {
+      setIsLoading(true);
+      showLoading({ message: "Logging in..." });
 
-    try {
-      return await signInWithPassword(data);
-    } finally {
-      setIsLoading(false);
-      hideLoading();
-    }
-  };
+      try {
+        return await signInWithPassword(data);
+      } finally {
+        setIsLoading(false);
+        hideLoading();
+      }
+    },
+    [showLoading, hideLoading],
+  );
 
-  const loginWithOAuth = async (
-    provider: OAuthProvider,
-  ): Promise<LoginResponse> => {
-    setIsLoading(true);
+  const loginWithOAuth = useCallback(
+    async (provider: OAuthProvider): Promise<LoginResponse> => {
+      setIsLoading(true);
 
-    try {
-      return await signInWithOAuth(provider);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      try {
+        return await signInWithOAuth(provider);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [],
+  );
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     showLoading({ message: "Logging out..." });
 
     const result = await signOut();
@@ -101,22 +107,23 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
 
     return result;
-  };
+  }, [showLoading, hideLoading]);
+
+  const contextValue = useMemo(
+    () => ({
+      isAuthenticated: !!session,
+      session,
+      profile,
+      login,
+      loginWithOAuth,
+      logout,
+      isLoading,
+    }),
+    [session, profile, login, loginWithOAuth, logout, isLoading],
+  );
 
   return (
-    <AuthContext.Provider
-      value={{
-        isAuthenticated: !!session,
-        session,
-        profile,
-        login,
-        loginWithOAuth,
-        logout,
-        isLoading,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 }
 

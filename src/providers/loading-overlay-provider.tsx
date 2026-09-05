@@ -4,6 +4,7 @@ import {
   PropsWithChildren,
   useCallback,
   useContext,
+  useMemo,
   useState,
 } from "react";
 
@@ -35,8 +36,10 @@ export function LoadingOverlayProvider({ children }: PropsWithChildren) {
     setVisible(false);
   }, []);
 
+  const contextValue = useMemo(() => ({ show, hide }), [show, hide]);
+
   return (
-    <LoadingOverlayContext.Provider value={{ show, hide }}>
+    <LoadingOverlayContext.Provider value={contextValue}>
       {children}
 
       <LoadingOverlay
