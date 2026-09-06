@@ -83,7 +83,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
             left={0}
             right={0}
             bottom={0}
-            marginBottom="100"
+            marginBottom="20"
             alignItems="center"
             pointerEvents="box-none"
           >
