@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TamaguiProvider, Theme, useTheme } from "tamagui";
 import tamaguiConfig from "../../tamagui.config";
@@ -35,12 +36,21 @@ function AppNavigator() {
         }}
       >
         <Stack.Protected guard={!isAuthenticated}>
-          <Stack.Screen name="(auth)" />
+          <Stack.Screen
+            name="(auth)"
+            options={{ animation: "slide_from_right" }}
+          />
         </Stack.Protected>
 
         <Stack.Protected guard={isAuthenticated}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="(main)" />
+          <Stack.Screen
+            name="(tabs)"
+            options={{ animation: "slide_from_right" }}
+          />
+          <Stack.Screen
+            name="(main)"
+            options={{ animation: "slide_from_right" }}
+          />
         </Stack.Protected>
       </Stack>
     </>
@@ -61,20 +71,22 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
-      <TamaguiProvider config={tamaguiConfig} defaultTheme="dark">
-        <Theme name="dark">
-          <ToastProvider>
-            <QueryClientProvider client={queryClient}>
-              <LoadingOverlayProvider>
-                <AuthProvider>
-                  <AppNavigator />
-                </AuthProvider>
-              </LoadingOverlayProvider>
-            </QueryClientProvider>
-          </ToastProvider>
-        </Theme>
-      </TamaguiProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <TamaguiProvider config={tamaguiConfig} defaultTheme="dark">
+          <Theme name="dark">
+            <ToastProvider>
+              <QueryClientProvider client={queryClient}>
+                <LoadingOverlayProvider>
+                  <AuthProvider>
+                    <AppNavigator />
+                  </AuthProvider>
+                </LoadingOverlayProvider>
+              </QueryClientProvider>
+            </ToastProvider>
+          </Theme>
+        </TamaguiProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

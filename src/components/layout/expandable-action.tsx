@@ -1,13 +1,18 @@
 import ExpandableActionButton from "@/components/common/expandable-action-button";
 import { PickedMedia, useMediaPicker } from "@/hooks/use-media-picker";
 import { useNoteGeneration } from "@/hooks/use-note-generation";
-import { getFriendlyErrorMessage } from "@/lib/errors";
+import {
+  getNoteGenerationErrorMessage,
+  MEDIA_PICKER_ERROR_MESSAGES,
+} from "@/lib/errors";
 import { createNote } from "@/lib/notes";
 import { useLoadingOverlay } from "@/providers/loading-overlay-provider";
 import { useToast } from "@/providers/toast-provider";
 import { Camera, Upload } from "@tamagui/lucide-icons-2";
+import { useRouter } from "expo-router";
 
 export default function ExpandableAction() {
+  const router = useRouter();
   const { pickFromLibrary, pickFromCamera } = useMediaPicker();
   const { generateNotes, cancelGeneration } = useNoteGeneration();
   const { show: showLoading, hide: hideLoading } = useLoadingOverlay();
@@ -21,23 +26,25 @@ export default function ExpandableAction() {
 
     if (generationResult.error || !generationResult.data) {
       console.error("Failed to generate notes:", generationResult.error);
-      showToast(getFriendlyErrorMessage(generationResult.error));
+      showToast(getNoteGenerationErrorMessage(generationResult.error));
       return;
     }
 
     showLoading({ message: "Saving your note..." });
 
-    const { error: saveError } = await createNote(generationResult.data);
+    const { data: note, error: saveError } = await createNote(
+      generationResult.data,
+    );
 
     hideLoading();
 
-    if (saveError) {
+    if (saveError || !note) {
       console.error("Failed to save note:", saveError);
-      showToast(getFriendlyErrorMessage(saveError));
+      showToast(getNoteGenerationErrorMessage(saveError));
       return;
     }
 
-    // TODO: navigate to the new note, or refresh whatever list is showing notes
+    router.push(`/notes/${note.id}`);
   };
 
   const actions = [
@@ -45,18 +52,30 @@ export default function ExpandableAction() {
       key: "upload",
       icon: Upload,
       onPress: async () => {
-        const mediaItems = await pickFromLibrary();
-        if (mediaItems.length === 0) return;
-        await generateAndSave(mediaItems);
+        const result = await pickFromLibrary();
+
+        if (result.error) {
+          showToast(MEDIA_PICKER_ERROR_MESSAGES[result.error]);
+          return;
+        }
+        if (result.cancelled || !result.data) return;
+
+        await generateAndSave(result.data);
       },
     },
     {
       key: "camera",
       icon: Camera,
       onPress: async () => {
-        const media = await pickFromCamera();
-        if (!media) return;
-        await generateAndSave([media]);
+        const result = await pickFromCamera();
+
+        if (result.error) {
+          showToast(MEDIA_PICKER_ERROR_MESSAGES[result.error]);
+          return;
+        }
+        if (result.cancelled || !result.data) return;
+
+        await generateAndSave([result.data]);
       },
     },
   ];

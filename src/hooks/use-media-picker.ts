@@ -1,5 +1,4 @@
 import { useLoadingOverlay } from "@/providers/loading-overlay-provider";
-import { toast } from "@tamagui/toast/v2";
 import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { useCallback } from "react";
@@ -14,26 +13,40 @@ export type PickedMedia = {
   fileSize: number | null;
 };
 
+export type MediaPickerError = "permission_denied" | "picker_failed";
+
+export type MediaPickerResult<T> = {
+  data: T | null;
+  cancelled: boolean;
+  error: MediaPickerError | null;
+};
+
 export type UseMediaPickerOptions = {
   selectionLimit?: number;
 };
+
+const CANCELLED_RESULT = { data: null, cancelled: true, error: null } as const;
+
+function permissionDeniedResult<T>(): MediaPickerResult<T> {
+  return { data: null, cancelled: false, error: "permission_denied" };
+}
+
+function pickerFailedResult<T>(): MediaPickerResult<T> {
+  return { data: null, cancelled: false, error: "picker_failed" };
+} 
 
 export function useMediaPicker(options: UseMediaPickerOptions = {}) {
   const { show: showLoading, hide: hideLoading } = useLoadingOverlay();
   const { selectionLimit = MAX_IMAGE_SELECTION } = options;
 
-  const pickFromLibrary = useCallback(async (): Promise<PickedMedia[]> => {
-    showLoading();
-
+  const pickFromLibrary = useCallback(async (): Promise<MediaPickerResult<PickedMedia[]>> => {
     try {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (status !== "granted") {
         console.warn("Media library permission was not granted");
-        toast("Media library permission was not granted");
-
-        return [];
+        return permissionDeniedResult();
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -44,44 +57,52 @@ export function useMediaPicker(options: UseMediaPickerOptions = {}) {
       });
 
       if (result.canceled || result.assets.length === 0) {
-        return [];
+        return CANCELLED_RESULT;
       }
 
+      showLoading();
       const compressed = await Promise.all(
         result.assets.map(compressImageAsset)
       );
 
-      return compressed;
+      return { data: compressed, cancelled: false, error: null };
     } catch (error) {
-      console.error("Failed to access select photos:", error);
-      toast("Failed to access select photos");
-
-      return [];
+      console.error("Failed to select photos:", error);
+      return pickerFailedResult();
     } finally {
       hideLoading();
     }
   }, [selectionLimit, showLoading, hideLoading]);
 
-  const pickFromCamera = useCallback(async (): Promise<PickedMedia | null> => {
-    const { status } =
-      await ImagePicker.requestCameraPermissionsAsync();
+  const pickFromCamera = useCallback(async (): Promise<MediaPickerResult<PickedMedia>> => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
 
-    if (status !== "granted") {
-      console.warn("Camera permission was not granted");
-      return null;
+      if (status !== "granted") {
+        console.warn("Camera permission was not granted");
+        return permissionDeniedResult();
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ["images"],
+        quality: 0.8,
+      });
+
+      if (result.canceled || result.assets.length === 0) {
+        return CANCELLED_RESULT;
+      }
+      
+      showLoading();
+      const compressed = await compressImageAsset(result.assets[0]);
+
+      return { data: compressed, cancelled: false, error: null };
+    } catch (error) {
+      console.error("Failed to capture photo:", error);
+      return pickerFailedResult();
+    } finally {
+      hideLoading();
     }
-
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ["images"],
-      quality: 0.8,
-    });
-
-    if (result.canceled || result.assets.length === 0) {
-      return null;
-    }
-
-    return compressImageAsset(result.assets[0]);
-  }, []);
+  }, [showLoading, hideLoading]);
 
   return {
     pickFromLibrary,
@@ -113,8 +134,10 @@ async function compressImageAsset(
       fileSize: null,
     };
   } catch (error) {
-    console.error("Failed to compress image, using original:", error);
-
+    console.warn(
+      "Image compression failed, falling back to original asset:",
+      error
+    );
     return mapAssetToPickedMedia(asset);
   }
 }

@@ -18,7 +18,8 @@ export function useNoteGeneration() {
   const generateNotes = useCallback(
     async (mediaItems: PickedMedia[], message = "Generating your notes..."): Promise<NoteGenerationResult> => {
       if (mediaItems.length === 0) {
-        return { data: null, error: "No media selected." };
+        hideLoading();
+        return { data: null, error: "No media selected.", cancelled: false };
       }
 
       const controller = new AbortController();
@@ -48,22 +49,24 @@ export function useNoteGeneration() {
             console.error("Edge function returned an error:", errorBody ?? error.message);
 
             hideLoading();
+            
             return {
               data: null,
               error: typeof errorBody?.error === "string" ? errorBody.error : "Failed to generate notes. Please try again.",
+              cancelled: false,
             };
           }
 
           console.error("Failed to invoke edge function:", error);
           hideLoading();
-          return { data: null, error: error.message || "Failed to generate notes. Please try again." };
+          return { data: null, error: error.message || "Failed to generate notes. Please try again.", cancelled: false };
         }
 
         // Deliberately not hiding the overlay here — generation succeeded,
         // and the caller likely has a follow-up step (e.g. saving the note)
         // that should reuse the same overlay with a new message instead of
         // a flicker of hide-then-show.
-        return { data: data as GeneratedNotes, error: null };
+        return { data: data as GeneratedNotes, error: null, cancelled: false };
       } catch (error) {
         if (controller.signal.aborted || (error instanceof Error && error.name === "AbortError")) {
           hideLoading();
@@ -72,7 +75,7 @@ export function useNoteGeneration() {
 
         console.error("Failed to generate notes:", error);
         hideLoading();
-        return { data: null, error: error instanceof Error ? error.message : "Failed to generate notes. Please try again." };
+        return { data: null, error: error instanceof Error ? error.message : "Failed to generate notes. Please try again.", cancelled: false };
       } finally {
         setIsGenerating(false);
         abortControllerRef.current = null;

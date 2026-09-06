@@ -104,3 +104,25 @@ export async function fetchNoteById(id: string): Promise<Note | null> {
 
   return data;
 }
+
+// =================================================================================
+
+export type DeleteNoteResult = {
+  error: string | null;
+};
+
+export async function deleteNote(id: string): Promise<DeleteNoteResult> {
+  try {
+    const { error } = await supabase.from(TABLES.NOTES).delete().eq("id", id);
+
+    if (error) {
+      console.error("Failed to delete note:", error);
+      return { error: error.message };
+    }
+
+    return { error: null };
+  } catch (error) {
+    console.error("Unexpected error deleting note:", error);
+    return { error: "Something went wrong. Please try again." };
+  }
+}

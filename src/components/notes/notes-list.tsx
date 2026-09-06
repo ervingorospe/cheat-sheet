@@ -25,8 +25,10 @@ export default function NotesList({
   );
 
   const renderItem = useCallback(
-    ({ item }: ListRenderItemInfo<NoteListItem>) => <NoteCard note={item} />,
-    [],
+    ({ item }: ListRenderItemInfo<NoteListItem>) => (
+      <NoteCard note={item} folderId={folderId} />
+    ),
+    [folderId],
   );
 
   const handleEndReached = useCallback(() => {
