@@ -1,22 +1,45 @@
 import Screen from "@/components/layout/screen";
+import NoteDetailEdit from "@/components/notes/note-detail-edit";
 import NoteDetailSkeleton from "@/components/notes/note-detail-skeleton";
-import { H3, Paragraph, SizableText } from "@/components/theme";
+import NoteDetailView from "@/components/notes/note-detail-view";
+import { Paragraph } from "@/components/theme";
 import { useNote } from "@/hooks/use-note";
+import { UpdateNoteInput, updateNote } from "@/lib/notes";
+import { useToast } from "@/providers/toast-provider";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
+import { useState } from "react";
 import { ScrollView } from "react-native";
-import { XStack, YStack } from "tamagui";
-
-function formatDate(isoString: string): string {
-  return new Date(isoString).toLocaleDateString(undefined, {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+import { YStack } from "tamagui";
 
 export default function NoteDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: note, isLoading } = useNote(id);
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+
+  const [isEditing, setIsEditing] = useState(false);
+
+  const { mutate: saveNote, isPending: isSaving } = useMutation({
+    mutationFn: (updates: UpdateNoteInput) => updateNote(id, updates),
+    onSuccess: (result) => {
+      if (result.error || !result.data) {
+        showToast(result.error ?? "Something went wrong. Please try again.");
+        return;
+      }
+
+      queryClient.setQueryData(["notes", "detail", id], result.data);
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === "notes" && query.queryKey[1] !== "detail",
+      });
+      showToast("Saved.", "success");
+      setIsEditing(false);
+    },
+    onError: () => {
+      showToast("Something went wrong. Please try again.");
+    },
+  });
 
   if (isLoading) {
     return (
@@ -41,44 +64,23 @@ export default function NoteDetailScreen() {
     );
   }
 
-  const keyPoints = Array.isArray(note.key_points)
-    ? (note.key_points as string[])
-    : [];
-
   return (
     <Screen>
-      <ScrollView
-        contentContainerStyle={{ padding: 20 }}
-        showsVerticalScrollIndicator={false}
-      >
-        <H3>{note.title || "Untitled note"}</H3>
-        <Paragraph color="$muted" marginTop="$xs" marginBottom="$lg">
-          {formatDate(note.created_at)}
-        </Paragraph>
-
-        {note.content && (
-          <YStack marginBottom="$lg">
-            <Paragraph>{note.content}</Paragraph>
-          </YStack>
-        )}
-
-        {keyPoints.length > 0 && (
-          <YStack gap="$sm">
-            <SizableText fontSize="$5" fontWeight="700" marginBottom="$xs">
-              Key Points
-            </SizableText>
-
-            {keyPoints.map((point, index) => (
-              <XStack key={index} gap="$sm" alignItems="flex-start">
-                <SizableText color="$primary" fontWeight="700">
-                  •
-                </SizableText>
-                <Paragraph flex={1}>{point}</Paragraph>
-              </XStack>
-            ))}
-          </YStack>
-        )}
-      </ScrollView>
+      {isEditing ? (
+        <NoteDetailEdit
+          note={note}
+          isSaving={isSaving}
+          onSave={saveNote}
+          onCancel={() => setIsEditing(false)}
+        />
+      ) : (
+        <ScrollView
+          contentContainerStyle={{ padding: 10 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <NoteDetailView note={note} onEdit={() => setIsEditing(true)} />
+        </ScrollView>
+      )}
     </Screen>
   );
 }

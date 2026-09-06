@@ -6,8 +6,10 @@ export {
   AppList,
   AppSection,
   AppTextStack,
-  FormSection,
+  FormSection
 } from "./gap-spacing";
 export { default as InputStyle } from "./input";
 export { default as Paper } from "./paper";
+export { default as TextAreaStyle } from "./text-area";
 export { H1, H2, H3, H4, H5, H6, Paragraph, SizableText } from "./typography";
+

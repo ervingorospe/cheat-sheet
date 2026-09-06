@@ -4,16 +4,24 @@ import {
   FormSection,
   InputStyle,
   SizableText,
+  TextAreaStyle,
 } from "@/components/theme";
 import { Eye, EyeOff } from "@tamagui/lucide-icons-2";
-import { PropsWithChildren, ReactNode, useState } from "react";
+import {
+  ComponentProps,
+  ComponentType,
+  PropsWithChildren,
+  ReactNode,
+  useState,
+} from "react";
 import {
   Control,
   FieldPath,
+  FieldPathValue,
   FieldValues,
   useController,
 } from "react-hook-form";
-import { Button, XStack } from "tamagui";
+import { Button, TextArea, XStack } from "tamagui";
 
 type FormProps = PropsWithChildren<{ actions?: ReactNode }>;
 
@@ -27,15 +35,17 @@ function Form({ children, actions }: FormProps) {
   );
 }
 
-type FormInputProps<T extends FieldValues> = React.ComponentProps<
-  typeof InputStyle
-> & {
-  name: FieldPath<T>;
+type FormInputProps<
+  T extends FieldValues,
+  N extends FieldPath<T> = FieldPath<T>,
+> = Omit<ComponentProps<typeof InputStyle>, "defaultValue"> & {
+  name: N;
   control: Control<T>;
   label?: string;
   helperText?: string;
-  icon?: React.ComponentType<{ size?: any; color?: any }>;
-  onInputFocus?: (name: FieldPath<T>) => void;
+  icon?: ComponentType<{ size?: any; color?: any }>;
+  onInputFocus?: (name: N) => void;
+  defaultValue?: FieldPathValue<T, N>;
 };
 
 function Input<T extends FieldValues>({
@@ -45,6 +55,7 @@ function Input<T extends FieldValues>({
   helperText,
   icon: Icon,
   secureTextEntry,
+  defaultValue,
   ...props
 }: FormInputProps<T>) {
   const [showPassword, setShowPassword] = useState(false);
@@ -56,6 +67,7 @@ function Input<T extends FieldValues>({
   } = useController({
     name,
     control,
+    defaultValue,
   });
 
   const hasError = Boolean(error);
@@ -64,7 +76,7 @@ function Input<T extends FieldValues>({
   const iconColor = hasError ? "$error" : isFocused ? "$primary" : "$muted";
 
   return (
-    <AppTextStack gap="$2">
+    <AppTextStack gap="$2" flex={1}>
       {label && (
         <SizableText fontSize="$2" fontWeight="$5" color="$textHeader">
           {label}
@@ -152,6 +164,83 @@ function Input<T extends FieldValues>({
     </AppTextStack>
   );
 }
+
+type FormTextAreaProps<
+  T extends FieldValues,
+  N extends FieldPath<T> = FieldPath<T>,
+> = Omit<ComponentProps<typeof TextArea>, "defaultValue"> & {
+  name: N;
+  control: Control<T>;
+  label?: string;
+  helperText?: string;
+  defaultValue?: FieldPathValue<T, N>;
+};
+
+function TextAreaField<T extends FieldValues>({
+  name,
+  control,
+  label,
+  helperText,
+  defaultValue,
+  ...props
+}: FormTextAreaProps<T>) {
+  const [isFocused, setIsFocused] = useState(false);
+
+  const {
+    field,
+    fieldState: { error },
+  } = useController({
+    name,
+    control,
+    defaultValue,
+  });
+
+  const hasError = Boolean(error);
+
+  return (
+    <AppTextStack gap="$2" flex={1}>
+      {label && (
+        <SizableText fontSize="$2" fontWeight="$5" color="$textHeader">
+          {label}
+        </SizableText>
+      )}
+
+      <TextAreaStyle
+        {...props}
+        flex={1}
+        value={field.value ?? ""}
+        onChangeText={field.onChange}
+        borderColor={hasError ? "$error" : "$border"}
+        focusStyle={{
+          borderColor: hasError ? "$error" : "$primary",
+        }}
+        onFocus={(event) => {
+          setIsFocused(true);
+          props.onFocus?.(event);
+        }}
+        onBlur={(event) => {
+          setIsFocused(false);
+          field.onBlur();
+          props.onBlur?.(event);
+        }}
+      />
+
+      {hasError ? (
+        <SizableText fontSize="$2" color="$error">
+          {error?.message}
+        </SizableText>
+      ) : (
+        helperText && (
+          <SizableText fontSize="$2" color="$muted">
+            {helperText}
+          </SizableText>
+        )
+      )}
+    </AppTextStack>
+  );
+}
+
+Form.TextArea = TextAreaField;
 
 Form.Input = Input;
 

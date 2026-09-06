@@ -3,7 +3,7 @@ import { styled, YStack } from "tamagui";
 const Paper = styled(YStack, {
   name: "Paper",
 
-  paddingHorizontal: 30,
+  paddingHorizontal: 20,
   paddingVertical: 10,
 
   borderRadius: 22,

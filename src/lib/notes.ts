@@ -126,3 +126,59 @@ export async function deleteNote(id: string): Promise<DeleteNoteResult> {
     return { error: "Something went wrong. Please try again." };
   }
 }
+
+// =================================================================================
+
+export type DocLink = {
+  label: string;
+  url: string;
+};
+
+export type UpdateNoteInput = {
+  title: string;
+  content: string;
+  key_points: string[];
+  doc_links: DocLink[];
+};
+
+export type UpdateNoteResult = {
+  data: Note | null;
+  error: string | null;
+};
+
+export async function updateNote(
+  id: string,
+  updates: UpdateNoteInput
+): Promise<UpdateNoteResult> {
+  try {
+    const { data, error } = await supabase
+      .from(TABLES.NOTES)
+      .update({
+        title: updates.title,
+        content: updates.content,
+        key_points: updates.key_points,
+        doc_links: updates.doc_links,
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Failed to update note:", error);
+      return { data: null, error: error.message };
+    }
+
+    return { data, error: null };
+  } catch (error) {
+    console.error("Unexpected error updating note:", error);
+    return { data: null, error: "Something went wrong. Please try again." };
+  }
+}
+
+export function toKeyPoints(value: Note["key_points"]): string[] {
+  return Array.isArray(value) ? (value as string[]) : [];
+}
+
+export function toDocLinks(value: Note["doc_links"]): DocLink[] {
+  return Array.isArray(value) ? (value as DocLink[]) : [];
+}

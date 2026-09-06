@@ -20,7 +20,7 @@ type ToastContextValue = {
 
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
-const TOAST_DURATION_MS = 3000;
+const TOAST_DURATION_MS = 5000;
 
 export function ToastProvider({ children }: PropsWithChildren) {
   const [message, setMessage] = useState<string | null>(null);
@@ -108,7 +108,9 @@ export function ToastProvider({ children }: PropsWithChildren) {
               pointerEvents="auto"
             >
               <SizableText
-                color="$textHeader"
+                color={
+                  backgroundColor === "$success" ? "$background" : "$textHeader"
+                }
                 fontWeight="600"
                 textAlign="center"
                 flex={1}
@@ -129,7 +131,14 @@ export function ToastProvider({ children }: PropsWithChildren) {
                   opacity: 0.6,
                 }}
               >
-                <X size={16} color="$textHeader" />
+                <X
+                  size={16}
+                  color={
+                    backgroundColor === "$success"
+                      ? "$background"
+                      : "$textHeader"
+                  }
+                />
               </Button>
             </XStack>
           </YStack>

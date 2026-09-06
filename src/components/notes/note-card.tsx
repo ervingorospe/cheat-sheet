@@ -1,6 +1,7 @@
 import SwipeDeleteAction from "@/components/common/swipe-delete-action";
 import { H4, Paper } from "@/components/theme";
 import { notesQueryKey } from "@/hooks/use-notes-list";
+import { confirmDelete } from "@/lib/alerts";
 import { deleteNote, NoteListItem, NotesPage } from "@/lib/notes";
 import { useToast } from "@/providers/toast-provider";
 import { formatDate } from "@/utils/date";
@@ -12,7 +13,6 @@ import {
 } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import { forwardRef, memo, useRef } from "react";
-import { Alert } from "react-native";
 import ReanimatedSwipeable, {
   SwipeableMethods,
 } from "react-native-gesture-handler/ReanimatedSwipeable";
@@ -65,27 +65,15 @@ function NoteCard({ note, folderId }: NoteCardProps) {
     },
   });
 
-  const confirmDelete = () => {
-    Alert.alert(
-      "Delete note?",
-      "This can't be undone.",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-          onPress: () => swipeableRef.current?.close(),
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            swipeableRef.current?.close();
-            handleDelete();
-          },
-        },
-      ],
-      { onDismiss: () => swipeableRef.current?.close() },
-    );
+  const handleDeletePress = () => {
+    confirmDelete({
+      title: "Delete note?",
+      onConfirm: () => {
+        swipeableRef.current?.close();
+        handleDelete();
+      },
+      onCancel: () => swipeableRef.current?.close(),
+    });
   };
 
   return (
@@ -94,7 +82,9 @@ function NoteCard({ note, folderId }: NoteCardProps) {
       overshootRight={false}
       rightThreshold={40}
       containerStyle={{ marginBottom: 12 }}
-      renderRightActions={() => <SwipeDeleteAction onPress={confirmDelete} />}
+      renderRightActions={() => (
+        <SwipeDeleteAction onPress={handleDeletePress} />
+      )}
     >
       <Link href={{ pathname: "/notes/[id]", params: { id: note.id } }} asChild>
         <NoteCardContent note={note} />
