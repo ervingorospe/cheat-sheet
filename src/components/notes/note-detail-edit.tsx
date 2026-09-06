@@ -109,7 +109,8 @@ export default function NoteDetailEdit({
       >
         {/* Delete */}
         <Button
-          variant="outlineDanger"
+          variant="text"
+          color="$error"
           icon={isDeleting ? <Spinner size="small" /> : <Trash2 size={16} />}
           onPress={handleDeletePress}
           opacity={isBusy ? 0.5 : 1}
@@ -130,6 +131,7 @@ export default function NoteDetailEdit({
           </Button>
 
           <Button
+            variant="outline"
             icon={isSaving ? <Spinner size="small" /> : <Check size={16} />}
             onPress={handleSubmit(onSubmit, onInvalid)}
             opacity={isBusy ? 0.5 : 1}

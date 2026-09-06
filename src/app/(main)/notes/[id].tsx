@@ -13,12 +13,15 @@ import { ScrollView } from "react-native";
 import { YStack } from "tamagui";
 
 export default function NoteDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, isEdit } = useLocalSearchParams<{
+    id: string;
+    isEdit?: string;
+  }>();
   const { data: note, isLoading } = useNote(id);
   const queryClient = useQueryClient();
   const { showToast } = useToast();
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(isEdit === "true");
 
   const { mutate: saveNote, isPending: isSaving } = useMutation({
     mutationFn: (updates: UpdateNoteInput) => updateNote(id, updates),

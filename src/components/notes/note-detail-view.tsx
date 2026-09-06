@@ -1,9 +1,13 @@
 import { H3, Paragraph, SizableText } from "@/components/theme";
+import { useDeleteNote } from "@/hooks/use-delete-note";
 import { Note, toDocLinks, toKeyPoints } from "@/lib/notes";
 import { formatDate } from "@/utils/date";
-import { ExternalLink, Pencil } from "@tamagui/lucide-icons-2";
+import { ExternalLink } from "@tamagui/lucide-icons-2";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { Button, XStack, YStack } from "tamagui";
+import { XStack, YStack } from "tamagui";
+import NoteActionButtons from "./note-action-buttons";
 
 type NoteDetailViewProps = {
   note: Note;
@@ -11,11 +15,28 @@ type NoteDetailViewProps = {
 };
 
 export default function NoteDetailView({ note, onEdit }: NoteDetailViewProps) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
   const keyPoints = toKeyPoints(note.key_points);
   const docLinks = toDocLinks(note.doc_links);
 
+  const { handleDelete } = useDeleteNote(note.id, {
+    onDeleted: () => {
+      queryClient.removeQueries({ queryKey: ["notes", "detail", note.id] });
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === "notes" && query.queryKey[1] !== "detail",
+      });
+      router.back();
+    },
+  });
+
   return (
     <YStack>
+      <XStack paddingBottom="$xl" justifyContent="flex-end">
+        <NoteActionButtons onEdit={onEdit} onDelete={handleDelete} size={15} />
+      </XStack>
       <XStack justifyContent="space-between" alignItems="flex-start">
         <YStack flex={1}>
           <H3>{note.title || "Untitled note"}</H3>
@@ -23,13 +44,6 @@ export default function NoteDetailView({ note, onEdit }: NoteDetailViewProps) {
             {formatDate(note.created_at)}
           </Paragraph>
         </YStack>
-        <Button
-          size="$3"
-          circular
-          chromeless
-          icon={<Pencil size={16} />}
-          onPress={onEdit}
-        />
       </XStack>
 
       {note.content && (

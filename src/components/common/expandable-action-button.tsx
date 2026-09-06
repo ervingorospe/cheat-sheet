@@ -1,7 +1,7 @@
 import Backdrop from "@/components/common/backdrop";
 import { useOutsidePress } from "@/hooks/use-outside-press";
 import { ExpandableActionButtonProps } from "@/types/common/expandable-action-button.type";
-import { IconAction } from "@/types/common/icon-action";
+import { IconAction } from "@/types/common/icon-action.type";
 import { Camera, Plus } from "@tamagui/lucide-icons-2";
 import { useEffect, useState } from "react";
 import { AnimatePresence, YStack } from "tamagui";

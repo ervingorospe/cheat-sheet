@@ -4,7 +4,9 @@ import {
   PropsWithChildren,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -14,9 +16,11 @@ export type ShowLoadingOptions = {
   cancelLabel?: string;
 };
 
+const DEFAULT_HIDE_DELAY_MS = 1000;
+
 type LoadingOverlayContextValue = {
   show: (options?: ShowLoadingOptions) => void;
-  hide: () => void;
+  hide: (delayMs?: number) => void;
 };
 
 const LoadingOverlayContext = createContext<
@@ -26,15 +30,42 @@ const LoadingOverlayContext = createContext<
 export function LoadingOverlayProvider({ children }: PropsWithChildren) {
   const [visible, setVisible] = useState(false);
   const [options, setOptions] = useState<ShowLoadingOptions>({});
+  const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const show = useCallback((opts: ShowLoadingOptions = {}) => {
-    setOptions(opts);
-    setVisible(true);
+  const clearPendingHide = useCallback(() => {
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
   }, []);
 
-  const hide = useCallback(() => {
-    setVisible(false);
-  }, []);
+  const show = useCallback(
+    (opts: ShowLoadingOptions = {}) => {
+      clearPendingHide();
+      setOptions(opts);
+      setVisible(true);
+    },
+    [clearPendingHide],
+  );
+
+  const hide = useCallback(
+    (delayMs: number = DEFAULT_HIDE_DELAY_MS) => {
+      clearPendingHide();
+
+      if (delayMs <= 0) {
+        setVisible(false);
+        return;
+      }
+
+      hideTimeoutRef.current = setTimeout(() => {
+        setVisible(false);
+        hideTimeoutRef.current = null;
+      }, delayMs);
+    },
+    [clearPendingHide],
+  );
+
+  useEffect(() => clearPendingHide, [clearPendingHide]);
 
   const contextValue = useMemo(() => ({ show, hide }), [show, hide]);
 

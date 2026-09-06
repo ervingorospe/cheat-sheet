@@ -1,4 +1,4 @@
-import { IconAction } from "./icon-action";
+import { IconAction } from "./icon-action.type";
 
 export type ExpandableActionButtonProps = {
   actions: IconAction[];

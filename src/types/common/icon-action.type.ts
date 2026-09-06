@@ -1,7 +1,10 @@
 import { Camera } from "@tamagui/lucide-icons-2";
 
-export type IconAction = {
+export type IconActionProps = {
   key: string;
   icon: typeof Camera;
   onPress: () => void;
+  color?: string;
+  width?: number;
+  size?: string | number;
 };
