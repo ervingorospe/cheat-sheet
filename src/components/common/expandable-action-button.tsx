@@ -1,7 +1,7 @@
 import Backdrop from "@/components/common/backdrop";
 import { useOutsidePress } from "@/hooks/use-outside-press";
 import { ExpandableActionButtonProps } from "@/types/common/expandable-action-button.type";
-import { IconAction } from "@/types/common/icon-action.type";
+import { IconActionProps } from "@/types/common/icon-action.type";
 import { Camera, Plus } from "@tamagui/lucide-icons-2";
 import { useEffect, useState } from "react";
 import { AnimatePresence, YStack } from "tamagui";
@@ -38,7 +38,7 @@ export default function ExpandableActionButton({
     return () => timers.forEach(clearTimeout);
   }, [isMenuOpen, actions, staggerMs]);
 
-  const handleActionPress = (action: IconAction) => {
+  const handleActionPress = (action: IconActionProps) => {
     action.onPress();
     setIsMenuOpen(false);
   };
