@@ -44,6 +44,7 @@ function NoteCard({ note, folderId }: NoteCardProps) {
   };
 
   const handleEdit = () => {
+    swipeableRef.current?.close();
     router.push(`/notes/${note.id}?isEdit=true`);
   };
 
