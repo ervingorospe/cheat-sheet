@@ -1,5 +1,5 @@
+import { compressImage } from "@/lib/image";
 import { useLoadingOverlay } from "@/providers/loading-overlay-provider";
-import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { useCallback } from "react";
 
@@ -33,7 +33,7 @@ function permissionDeniedResult<T>(): MediaPickerResult<T> {
 
 function pickerFailedResult<T>(): MediaPickerResult<T> {
   return { data: null, cancelled: false, error: "picker_failed" };
-} 
+}
 
 export function useMediaPicker(options: UseMediaPickerOptions = {}) {
   const { show: showLoading, hide: hideLoading } = useLoadingOverlay();
@@ -91,7 +91,7 @@ export function useMediaPicker(options: UseMediaPickerOptions = {}) {
       if (result.canceled || result.assets.length === 0) {
         return CANCELLED_RESULT;
       }
-      
+
       showLoading();
       const compressed = await compressImageAsset(result.assets[0]);
 
@@ -114,21 +114,13 @@ async function compressImageAsset(
   asset: ImagePicker.ImagePickerAsset
 ): Promise<PickedMedia> {
   try {
-    const context = ImageManipulator.manipulate(asset.uri);
-
-    context.resize({
-      width: MAX_IMAGE_DIMENSION,
-    });
-
-    const renderedImage = await context.renderAsync();
-
-    const result = await renderedImage.saveAsync({
-      compress: 0.7,
-      format: SaveFormat.JPEG,
+    const uri = await compressImage(asset.uri, {
+      maxDimension: MAX_IMAGE_DIMENSION,
+      quality: 0.7,
     });
 
     return {
-      uri: result.uri,
+      uri,
       type: "image",
       fileName: asset.fileName ?? null,
       fileSize: null,

@@ -16,7 +16,7 @@ export type ShowLoadingOptions = {
   cancelLabel?: string;
 };
 
-const DEFAULT_HIDE_DELAY_MS = 1000;
+const DEFAULT_HIDE_DELAY_MS = 500;
 
 type LoadingOverlayContextValue = {
   show: (options?: ShowLoadingOptions) => void;

@@ -1,5 +1,6 @@
 import Form from "@/components/common/form";
 import DocLinksEditor from "@/components/notes/doc-links-editor";
+import ImageLinksEditor from "@/components/notes/image-links-editor";
 import KeyPointsEditor from "@/components/notes/key-points-editor";
 import { AppFormInputs, Button, SizableText } from "@/components/theme";
 import { confirmDelete } from "@/lib/alerts";
@@ -8,6 +9,7 @@ import {
   UpdateNoteInput,
   deleteNote,
   toDocLinks,
+  toImageLinks,
   toKeyPoints,
 } from "@/lib/notes";
 import { useToast } from "@/providers/toast-provider";
@@ -46,6 +48,7 @@ export default function NoteDetailEdit({
       content: note.content ?? "",
       key_points: toKeyPoints(note.key_points).map((value) => ({ value })),
       doc_links: toDocLinks(note.doc_links),
+      image_links: toImageLinks(note.image_links),
     },
     mode: "onChange",
   });
@@ -86,6 +89,7 @@ export default function NoteDetailEdit({
         .map((point) => point.value)
         .filter((value) => value.trim().length > 0),
       doc_links: values.doc_links.filter((link) => link.url.trim().length > 0),
+      image_links: values.image_links,
     });
   };
 
@@ -107,7 +111,6 @@ export default function NoteDetailEdit({
         paddingVertical="$md"
         zIndex={10}
       >
-        {/* Delete */}
         <Button
           variant="text"
           color="$error"
@@ -158,6 +161,11 @@ export default function NoteDetailEdit({
             multiline
             numberOfLines={10}
           />
+
+          <SizableText fontSize="$3" fontWeight="700">
+            Images
+          </SizableText>
+          <ImageLinksEditor control={control} name="image_links" />
 
           <SizableText fontSize="$3" fontWeight="700">
             Key Points

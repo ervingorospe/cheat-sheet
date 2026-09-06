@@ -5,7 +5,7 @@ import {
   getNoteGenerationErrorMessage,
   MEDIA_PICKER_ERROR_MESSAGES,
 } from "@/lib/errors";
-import { createNote } from "@/lib/notes";
+import { createNote, deleteNoteImage, uploadNoteImage } from "@/lib/notes";
 import { useLoadingOverlay } from "@/providers/loading-overlay-provider";
 import { useToast } from "@/providers/toast-provider";
 import { Camera, Upload } from "@tamagui/lucide-icons-2";
@@ -20,13 +20,27 @@ export default function ExpandableAction() {
 
   const generateAndSave = async (mediaItems: PickedMedia[]) => {
     showLoading({ message: "Generating Notes...", onCancel: cancelGeneration });
-    const generationResult = await generateNotes(mediaItems);
 
-    if (generationResult.cancelled) return;
+    const [generationResult, uploadResults] = await Promise.all([
+      generateNotes(mediaItems),
+      Promise.all(mediaItems.map((media) => uploadNoteImage(media.uri))),
+    ]);
+
+    const uploadedUrls = uploadResults
+      .filter((result): result is { url: string; error: null } =>
+        Boolean(result.url),
+      )
+      .map((result) => result.url);
+
+    if (generationResult.cancelled) {
+      await Promise.all(uploadedUrls.map((url) => deleteNoteImage(url)));
+      return;
+    }
 
     if (generationResult.error || !generationResult.data) {
       console.error("Failed to generate notes:", generationResult.error);
       showToast(getNoteGenerationErrorMessage(generationResult.error));
+      await Promise.all(uploadedUrls.map((url) => deleteNoteImage(url)));
       return;
     }
 
@@ -34,6 +48,7 @@ export default function ExpandableAction() {
 
     const { data: note, error: saveError } = await createNote(
       generationResult.data,
+      uploadedUrls,
     );
 
     hideLoading();
@@ -41,6 +56,7 @@ export default function ExpandableAction() {
     if (saveError || !note) {
       console.error("Failed to save note:", saveError);
       showToast(getNoteGenerationErrorMessage(saveError));
+      await Promise.all(uploadedUrls.map((url) => deleteNoteImage(url)));
       return;
     }
 

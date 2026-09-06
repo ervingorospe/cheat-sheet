@@ -17,6 +17,7 @@ export const noteEditSchema = z.object({
       ]),
     }),
   ),
+  image_links: z.array(z.string()),
 });
 
 export type NoteEditFormValues = z.infer<typeof noteEditSchema>;

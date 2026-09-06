@@ -1,11 +1,12 @@
 import { H3, Paragraph, SizableText } from "@/components/theme";
 import { useDeleteNote } from "@/hooks/use-delete-note";
-import { Note, toDocLinks, toKeyPoints } from "@/lib/notes";
+import { Note, toDocLinks, toImageLinks, toKeyPoints } from "@/lib/notes";
 import { formatDate } from "@/utils/date";
 import { ExternalLink } from "@tamagui/lucide-icons-2";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
+import { Image } from "react-native";
 import { XStack, YStack } from "tamagui";
 import NoteActionButtons from "./note-action-buttons";
 
@@ -20,6 +21,7 @@ export default function NoteDetailView({ note, onEdit }: NoteDetailViewProps) {
 
   const keyPoints = toKeyPoints(note.key_points);
   const docLinks = toDocLinks(note.doc_links);
+  const imageLinks = toImageLinks(note.image_links);
 
   const { handleDelete } = useDeleteNote(note.id, {
     onDeleted: () => {
@@ -45,6 +47,18 @@ export default function NoteDetailView({ note, onEdit }: NoteDetailViewProps) {
           </Paragraph>
         </YStack>
       </XStack>
+
+      {imageLinks.length > 0 && (
+        <XStack flexWrap="wrap" gap="$sm" marginBottom="$lg">
+          {imageLinks.map((url) => (
+            <Image
+              key={url}
+              source={{ uri: url }}
+              style={{ width: 100, height: 100, borderRadius: 8 }}
+            />
+          ))}
+        </XStack>
+      )}
 
       {note.content && (
         <YStack marginBottom="$lg">
