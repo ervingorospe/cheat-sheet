@@ -1,3 +1,5 @@
+import Images from "@/components/common/images";
+import NoteActionButtons from "@/components/notes/note-action-buttons";
 import { H3, Paragraph, SizableText } from "@/components/theme";
 import { useDeleteNote } from "@/hooks/use-delete-note";
 import { Note, toDocLinks, toImageLinks, toKeyPoints } from "@/lib/notes";
@@ -6,9 +8,7 @@ import { ExternalLink } from "@tamagui/lucide-icons-2";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { Image } from "react-native";
 import { XStack, YStack } from "tamagui";
-import NoteActionButtons from "./note-action-buttons";
 
 type NoteDetailViewProps = {
   note: Note;
@@ -49,15 +49,10 @@ export default function NoteDetailView({ note, onEdit }: NoteDetailViewProps) {
       </XStack>
 
       {imageLinks.length > 0 && (
-        <XStack flexWrap="wrap" gap="$sm" marginBottom="$lg">
-          {imageLinks.map((url) => (
-            <Image
-              key={url}
-              source={{ uri: url }}
-              style={{ width: 100, height: 100, borderRadius: 8 }}
-            />
-          ))}
-        </XStack>
+        <Images
+          images={imageLinks}
+          thumbnailStyle={{ width: 100, height: 100, borderRadius: 8 }}
+        />
       )}
 
       {note.content && (

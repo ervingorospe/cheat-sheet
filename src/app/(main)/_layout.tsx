@@ -1,7 +1,6 @@
 import AppHeader from "@/components/layout/app-header";
-import CustomTabBar from "@/components/layout/custom-tab-bar";
 import { Stack, usePathname } from "expo-router";
-import { YStack } from "tamagui";
+import { useTheme, YStack } from "tamagui";
 
 const titleMap: Record<string, string> = {
   "/profile": "Profile",
@@ -9,19 +8,22 @@ const titleMap: Record<string, string> = {
 
 export default function TabLayout() {
   const pathname = usePathname();
+  const theme = useTheme();
   const title = titleMap[pathname] ?? "";
 
   return (
-    <YStack flex={1} backgroundColor="$background">
+    <YStack flex={1}>
       <AppHeader isBack={true} title={title} />
 
       <Stack
         screenOptions={{
           headerShown: false,
+          contentStyle: {
+            backgroundColor: theme.background.val,
+            paddingBottom: 30,
+          },
         }}
       />
-
-      <CustomTabBar />
     </YStack>
   );
 }
