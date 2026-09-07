@@ -1,11 +1,11 @@
+import Images from "@/components/common/images";
 import { Button } from "@/components/theme";
+import { useMediaPicker } from "@/hooks/use-media-picker";
 import { deleteNoteImage, uploadNoteImage } from "@/lib/notes";
 import { useToast } from "@/providers/toast-provider";
 import { ImagePlus, X } from "@tamagui/lucide-icons-2";
-import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import { Control, FieldValues, Path, useController } from "react-hook-form";
-import { Image } from "react-native";
 import { Spinner, XStack, YStack } from "tamagui";
 
 type ImageLinksEditorProps<T extends FieldValues> = {
@@ -22,6 +22,11 @@ export default function ImageLinksEditor<T extends FieldValues>({
   const [isUploading, setIsUploading] = useState(false);
   const { showToast } = useToast();
 
+  const { pickFromLibrary } = useMediaPicker({
+    selectionLimit: 10,
+    isShowLoading: false,
+  });
+
   const { field } = useController({
     name,
     control,
@@ -31,41 +36,65 @@ export default function ImageLinksEditor<T extends FieldValues>({
   const images = (field.value as string[] | undefined) ?? [];
 
   const pickAndUpload = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (status !== "granted") {
-      showToast(
-        "We need access to your photos to continue. You can enable this in Settings.",
-      );
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsMultipleSelection: false,
-      quality: 0.8,
-    });
-
-    if (result.canceled || result.assets.length === 0) {
-      return;
-    }
-
     setIsUploading(true);
 
-    const { url, error } = await uploadNoteImage(result.assets[0].uri);
+    const result = await pickFromLibrary();
 
-    setIsUploading(false);
-
-    if (error || !url) {
-      showToast(error ?? "Failed to upload image. Please try again.");
+    if (result.cancelled) {
       return;
     }
 
-    field.onChange([...images, url]);
+    if (result.error) {
+      if (result.error === "permission_denied") {
+        showToast(
+          "We need access to your photos to continue. You can enable this in Settings.",
+        );
+      } else {
+        showToast("Failed to select images. Please try again.");
+      }
+
+      return;
+    }
+
+    if (!result.data?.length) {
+      return;
+    }
+
+    try {
+      const uploadResults = await Promise.all(
+        result.data.map((media) => uploadNoteImage(media.uri)),
+      );
+
+      const successfulUrls = uploadResults
+        .filter(
+          (result): result is { url: string; error: null } =>
+            result.error === null && result.url !== null,
+        )
+        .map((result) => result.url);
+
+      const failedUploads = uploadResults.filter(
+        (result) => result.error || !result.url,
+      );
+
+      if (successfulUrls.length > 0) {
+        field.onChange([...images, ...successfulUrls]);
+      }
+
+      if (failedUploads.length > 0) {
+        showToast(
+          successfulUrls.length > 0
+            ? `${successfulUrls.length} image(s) uploaded, but ${failedUploads.length} failed.`
+            : "Failed to upload images. Please try again.",
+        );
+      }
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const removeImage = (index: number) => {
     const url = images[index];
+
     field.onChange(images.filter((_, i) => i !== index));
 
     // Only newly-added images (not yet part of the saved note) get purged
@@ -81,10 +110,11 @@ export default function ImageLinksEditor<T extends FieldValues>({
       <XStack flexWrap="wrap" gap="$sm">
         {images.map((url, index) => (
           <XStack key={url} position="relative">
-            <Image
-              source={{ uri: url }}
-              style={{ width: 80, height: 80, borderRadius: 8 }}
+            <Images
+              images={[url]}
+              thumbnailStyle={{ width: 80, height: 80, borderRadius: 8 }}
             />
+
             <XStack
               position="absolute"
               top={-6}

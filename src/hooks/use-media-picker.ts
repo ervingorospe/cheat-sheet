@@ -23,6 +23,7 @@ export type MediaPickerResult<T> = {
 
 export type UseMediaPickerOptions = {
   selectionLimit?: number;
+  isShowLoading?: boolean
 };
 
 const CANCELLED_RESULT = { data: null, cancelled: true, error: null } as const;
@@ -37,7 +38,7 @@ function pickerFailedResult<T>(): MediaPickerResult<T> {
 
 export function useMediaPicker(options: UseMediaPickerOptions = {}) {
   const { show: showLoading, hide: hideLoading } = useLoadingOverlay();
-  const { selectionLimit = MAX_IMAGE_SELECTION } = options;
+  const { selectionLimit = MAX_IMAGE_SELECTION, isShowLoading = true } = options;
 
   const pickFromLibrary = useCallback(async (): Promise<MediaPickerResult<PickedMedia[]>> => {
     try {
@@ -60,7 +61,8 @@ export function useMediaPicker(options: UseMediaPickerOptions = {}) {
         return CANCELLED_RESULT;
       }
 
-      showLoading();
+      if (isShowLoading) showLoading();
+      
       const compressed = await Promise.all(
         result.assets.map(compressImageAsset)
       );

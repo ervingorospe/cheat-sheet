@@ -4,15 +4,12 @@ import { useState } from "react";
 import { Image, ImageStyle, Pressable } from "react-native";
 import { Button, SizableText, XStack, YStack } from "tamagui";
 
-type NoteImagesProps = {
+type ImagesProps = {
   images: string[];
   thumbnailStyle?: ImageStyle;
 };
 
-export default function NoteImages({
-  images,
-  thumbnailStyle,
-}: NoteImagesProps) {
+export default function Images({ images, thumbnailStyle }: ImagesProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   if (images.length === 0) {
