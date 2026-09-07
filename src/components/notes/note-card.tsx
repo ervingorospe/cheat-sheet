@@ -1,10 +1,9 @@
 import { H4, Paper } from "@/components/theme";
 import { useDeleteNote } from "@/hooks/use-delete-note";
-import { notesQueryKey } from "@/hooks/use-notes-list";
-import { NoteListItem, NotesPage } from "@/lib/notes";
+import { NoteListItem } from "@/lib/notes";
 import { formatDate } from "@/utils/date";
 import { ChevronRight } from "@tamagui/lucide-icons-2";
-import { InfiniteData, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, router } from "expo-router";
 import { forwardRef, memo, useRef } from "react";
 import ReanimatedSwipeable, {
@@ -22,25 +21,24 @@ function NoteCard({ note, folderId }: NoteCardProps) {
   const swipeableRef = useRef<SwipeableMethods>(null);
   const queryClient = useQueryClient();
 
-  const { handleDelete } = useDeleteNote(note.id, {
+  const { confirmDeleteNote, isDeleting } = useDeleteNote(note.id, {
     onDeleted: () => {
-      const queryKey = notesQueryKey(folderId);
-      queryClient.setQueryData<InfiniteData<NotesPage>>(queryKey, (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          pages: old.pages.map((page) => ({
-            ...page,
-            notes: page.notes.filter((n) => n.id !== note.id),
-          })),
-        };
+      queryClient.removeQueries({
+        queryKey: ["notes", "detail", note.id],
       });
+
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === "notes" && query.queryKey[1] !== "detail",
+      });
+
+      router.back();
     },
   });
 
   const handleDeletePress = () => {
     swipeableRef.current?.close();
-    handleDelete();
+    confirmDeleteNote();
   };
 
   const handleEdit = () => {
