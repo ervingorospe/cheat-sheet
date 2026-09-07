@@ -116,11 +116,29 @@ export type DeleteNoteResult = {
 
 export async function deleteNote(id: string): Promise<DeleteNoteResult> {
   try {
+    const { data: existingNote, error: fetchError } = await supabase
+      .from(TABLES.NOTES)
+      .select("image_links")
+      .eq("id", id)
+      .single();
+
+    if (fetchError) {
+      console.error("Failed to fetch note before delete:", fetchError);
+    }
+
     const { error } = await supabase.from(TABLES.NOTES).delete().eq("id", id);
 
     if (error) {
       console.error("Failed to delete note:", error);
       return { error: error.message };
+    }
+
+    const imagesToClean = toImageLinks(existingNote?.image_links ?? null);
+    console.log("Cleaning up images for deleted note:", imagesToClean);
+
+    if (imagesToClean.length > 0) {
+      const results = await Promise.all(imagesToClean.map((url) => deleteNoteImage(url)));
+      console.log("Image cleanup results:", results);
     }
 
     return { error: null };
@@ -244,9 +262,12 @@ export type DeleteImageResult = {
   error: string | null;
 };
 
-export async function deleteNoteImage(url: string): Promise<DeleteImageResult> {
+export async function deleteNoteImage(
+  url: string,
+): Promise<DeleteImageResult> {
   try {
-    const marker = `/${NOTE_IMAGES_BUCKET}/`;
+    const marker = `/storage/v1/object/public/${NOTE_IMAGES_BUCKET}/`;
+
     const index = url.indexOf(marker);
 
     if (index === -1) {
@@ -255,7 +276,14 @@ export async function deleteNoteImage(url: string): Promise<DeleteImageResult> {
 
     const path = url.slice(index + marker.length);
 
-    const { error } = await supabase.storage.from(NOTE_IMAGES_BUCKET).remove([path]);
+    console.log("Deleting storage object:", {
+      bucket: NOTE_IMAGES_BUCKET,
+      path,
+    });
+
+    const { error } = await supabase.storage
+      .from(NOTE_IMAGES_BUCKET)
+      .remove([path]);
 
     if (error) {
       console.error("Failed to delete image:", error);
@@ -265,6 +293,9 @@ export async function deleteNoteImage(url: string): Promise<DeleteImageResult> {
     return { error: null };
   } catch (error) {
     console.error("Unexpected error deleting image:", error);
-    return { error: "Something went wrong. Please try again." };
+
+    return {
+      error: "Something went wrong. Please try again.",
+    };
   }
 }

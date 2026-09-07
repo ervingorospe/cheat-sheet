@@ -8,6 +8,7 @@ import {
   Note,
   UpdateNoteInput,
   deleteNote,
+  deleteNoteImage,
   toDocLinks,
   toImageLinks,
   toKeyPoints,
@@ -41,14 +42,16 @@ export default function NoteDetailEdit({
   const queryClient = useQueryClient();
   const { showToast } = useToast();
 
-  const { control, handleSubmit } = useForm<NoteEditFormValues>({
+  const originalImages = toImageLinks(note.image_links);
+
+  const { control, handleSubmit, getValues } = useForm<NoteEditFormValues>({
     resolver: zodResolver(noteEditSchema),
     defaultValues: {
       title: note.title ?? "",
       content: note.content ?? "",
       key_points: toKeyPoints(note.key_points).map((value) => ({ value })),
       doc_links: toDocLinks(note.doc_links),
-      image_links: toImageLinks(note.image_links),
+      image_links: originalImages,
     },
     mode: "onChange",
   });
@@ -81,7 +84,33 @@ export default function NoteDetailEdit({
     });
   };
 
+  const handleCancel = () => {
+    const currentImages = getValues("image_links") ?? [];
+    const unsavedUploads = currentImages.filter(
+      (url) => !originalImages.includes(url),
+    );
+
+    if (unsavedUploads.length > 0) {
+      Promise.all(unsavedUploads.map((url) => deleteNoteImage(url)));
+    }
+
+    onCancel();
+  };
+
   const onSubmit = (values: NoteEditFormValues) => {
+    const removedImages = originalImages.filter(
+      (url) => !values.image_links.includes(url),
+    );
+
+    if (removedImages.length > 0) {
+      console.log("Removing images from storage on save:", removedImages);
+      Promise.all(removedImages.map((url) => deleteNoteImage(url))).then(
+        (results) => {
+          console.log("Removed-image cleanup results:", results);
+        },
+      );
+    }
+
     onSave({
       title: values.title,
       content: values.content ?? "",
@@ -126,7 +155,7 @@ export default function NoteDetailEdit({
           <Button
             variant="text"
             icon={<X size={16} />}
-            onPress={onCancel}
+            onPress={handleCancel}
             opacity={isBusy ? 0.5 : 1}
             disabled={isBusy}
           >
@@ -165,7 +194,11 @@ export default function NoteDetailEdit({
           <SizableText fontSize="$3" fontWeight="700">
             Images
           </SizableText>
-          <ImageLinksEditor control={control} name="image_links" />
+          <ImageLinksEditor
+            control={control}
+            name="image_links"
+            originalImages={originalImages}
+          />
 
           <SizableText fontSize="$3" fontWeight="700">
             Key Points

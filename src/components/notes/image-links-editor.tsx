@@ -1,5 +1,5 @@
 import { Button } from "@/components/theme";
-import { uploadNoteImage } from "@/lib/notes";
+import { deleteNoteImage, uploadNoteImage } from "@/lib/notes";
 import { useToast } from "@/providers/toast-provider";
 import { ImagePlus, X } from "@tamagui/lucide-icons-2";
 import * as ImagePicker from "expo-image-picker";
@@ -11,11 +11,13 @@ import { Spinner, XStack, YStack } from "tamagui";
 type ImageLinksEditorProps<T extends FieldValues> = {
   control: Control<T>;
   name: Path<T>;
+  originalImages: string[];
 };
 
 export default function ImageLinksEditor<T extends FieldValues>({
   control,
   name,
+  originalImages,
 }: ImageLinksEditorProps<T>) {
   const [isUploading, setIsUploading] = useState(false);
   const { showToast } = useToast();
@@ -63,7 +65,15 @@ export default function ImageLinksEditor<T extends FieldValues>({
   };
 
   const removeImage = (index: number) => {
+    const url = images[index];
     field.onChange(images.filter((_, i) => i !== index));
+
+    // Only newly-added images (not yet part of the saved note) get purged
+    // immediately — an original image just gets unlinked here, and only
+    // actually deleted from storage once the parent form confirms Save.
+    if (!originalImages.includes(url)) {
+      deleteNoteImage(url);
+    }
   };
 
   return (
