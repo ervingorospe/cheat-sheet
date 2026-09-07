@@ -133,7 +133,7 @@ export default function NoteDetailScreen() {
             right={0}
             alignItems="center"
             paddingBottom="$xl"
-            paddingTop="$md"
+            paddingTop="$sm"
             paddingHorizontal="40"
             backgroundColor="$background"
           >

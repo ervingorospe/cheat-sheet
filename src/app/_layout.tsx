@@ -8,6 +8,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TamaguiProvider, Theme, useTheme } from "tamagui";
 import tamaguiConfig from "../../tamagui.config";
@@ -72,21 +73,23 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <TamaguiProvider config={tamaguiConfig} defaultTheme="dark">
-          <Theme name="dark">
-            <ToastProvider>
-              <QueryClientProvider client={queryClient}>
-                <LoadingOverlayProvider>
-                  <AuthProvider>
-                    <AppNavigator />
-                  </AuthProvider>
-                </LoadingOverlayProvider>
-              </QueryClientProvider>
-            </ToastProvider>
-          </Theme>
-        </TamaguiProvider>
-      </SafeAreaProvider>
+      <KeyboardProvider>
+        <SafeAreaProvider>
+          <TamaguiProvider config={tamaguiConfig} defaultTheme="dark">
+            <Theme name="dark">
+              <ToastProvider>
+                <QueryClientProvider client={queryClient}>
+                  <LoadingOverlayProvider>
+                    <AuthProvider>
+                      <AppNavigator />
+                    </AuthProvider>
+                  </LoadingOverlayProvider>
+                </QueryClientProvider>
+              </ToastProvider>
+            </Theme>
+          </TamaguiProvider>
+        </SafeAreaProvider>
+      </KeyboardProvider>
     </GestureHandlerRootView>
   );
 }

@@ -41,6 +41,7 @@ export default function ImageLinksEditor<T extends FieldValues>({
     const result = await pickFromLibrary();
 
     if (result.cancelled) {
+      setIsUploading(false);
       return;
     }
 
@@ -53,10 +54,12 @@ export default function ImageLinksEditor<T extends FieldValues>({
         showToast("Failed to select images. Please try again.");
       }
 
+      setIsUploading(false);
       return;
     }
 
     if (!result.data?.length) {
+      setIsUploading(false);
       return;
     }
 

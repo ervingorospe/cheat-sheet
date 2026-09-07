@@ -12,6 +12,7 @@ import {
   toImageLinks,
   toKeyPoints,
 } from "@/lib/notes";
+import { useAppHeaderHeight } from "@/providers/header-height-provider";
 import { useToast } from "@/providers/toast-provider";
 import {
   NoteEditFormValues,
@@ -22,6 +23,11 @@ import { Check, Trash2, X } from "@tamagui/lucide-icons-2";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useForm } from "react-hook-form";
+import { Platform } from "react-native";
+import {
+  KeyboardAvoidingView,
+  KeyboardStickyView,
+} from "react-native-keyboard-controller";
 import { ScrollView, Spinner, XStack, YStack } from "tamagui";
 
 type NoteDetailEditProps = {
@@ -37,6 +43,7 @@ export default function NoteDetailEdit({
   onSave,
   onCancel,
 }: NoteDetailEditProps) {
+  const { appHeaderHeight } = useAppHeaderHeight();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
@@ -72,6 +79,7 @@ export default function NoteDetailEdit({
 
   const handleCancel = () => {
     const currentImages = getValues("image_links") ?? [];
+
     const unsavedUploads = currentImages.filter(
       (url) => !originalImages.includes(url),
     );
@@ -90,6 +98,7 @@ export default function NoteDetailEdit({
 
     if (removedImages.length > 0) {
       console.log("Removing images from storage on save:", removedImages);
+
       Promise.all(removedImages.map((url) => deleteNoteImage(url))).then(
         (results) => {
           console.log("Removed-image cleanup results:", results);
@@ -115,10 +124,19 @@ export default function NoteDetailEdit({
   const isBusy = isSaving || isDeleting;
 
   return (
-    <>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={appHeaderHeight}
+    >
       <ScrollView
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 100 }}
+        contentContainerStyle={{
+          paddingHorizontal: 10,
+          paddingBottom: 100,
+        }}
       >
         <Form>
           <AppFormInputs>
@@ -141,6 +159,7 @@ export default function NoteDetailEdit({
             <SizableText fontSize="$3" fontWeight="700">
               Images
             </SizableText>
+
             <ImageLinksEditor
               control={control}
               name="image_links"
@@ -150,63 +169,77 @@ export default function NoteDetailEdit({
             <SizableText fontSize="$3" fontWeight="700">
               Key Points
             </SizableText>
+
             <KeyPointsEditor control={control} name="key_points" />
 
             <SizableText fontSize="$3" fontWeight="700">
               Links
             </SizableText>
+
             <DocLinksEditor control={control} name="doc_links" />
           </AppFormInputs>
         </Form>
       </ScrollView>
 
-      <YStack
-        position="absolute"
-        bottom={0}
-        left={0}
-        right={0}
-        alignItems="center"
-        paddingBottom="$xl"
-        paddingTop="$md"
-        paddingHorizontal="40"
-        backgroundColor="$background"
+      <KeyboardStickyView
+        offset={{ closed: 0, opened: 0 }}
+        style={{
+          position: "absolute",
+          bottom: -30,
+          left: 0,
+          right: 0,
+        }}
       >
-        <XStack width="100%" alignItems="center" justifyContent="space-between">
-          <Button
-            variant="text"
-            color="$error"
-            icon={isDeleting ? <Spinner size="small" /> : <Trash2 size={16} />}
-            onPress={confirmDeleteNote}
-            opacity={isBusy ? 0.5 : 1}
-            disabled={isBusy}
+        <YStack
+          alignItems="center"
+          paddingTop="$sm"
+          paddingBottom="$xl"
+          paddingHorizontal="15"
+          backgroundColor="$background"
+        >
+          <XStack
+            width="100%"
+            alignItems="center"
+            justifyContent="space-between"
           >
-            {isDeleting ? "Deleting..." : "Delete"}
-          </Button>
-
-          <XStack justifyContent="flex-end" gap="$xl">
             <Button
               variant="text"
-              icon={<X size={16} />}
-              onPress={handleCancel}
+              color="$error"
+              icon={
+                isDeleting ? <Spinner size="small" /> : <Trash2 size={16} />
+              }
+              onPress={confirmDeleteNote}
               opacity={isBusy ? 0.5 : 1}
               disabled={isBusy}
             >
-              Cancel
+              {isDeleting ? "Deleting..." : "Delete"}
             </Button>
 
-            <Button
-              variant="text"
-              color="$primary"
-              icon={isSaving ? <Spinner size="small" /> : <Check size={16} />}
-              onPress={handleSubmit(onSubmit, onInvalid)}
-              opacity={isBusy ? 0.5 : 1}
-              disabled={isBusy}
-            >
-              {isSaving ? "Saving..." : "Save"}
-            </Button>
+            <XStack justifyContent="flex-end" gap="$xl">
+              <Button
+                variant="text"
+                icon={<X size={16} />}
+                onPress={handleCancel}
+                opacity={isBusy ? 0.5 : 1}
+                disabled={isBusy}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                variant="text"
+                color="$primary"
+                icon={isSaving ? <Spinner size="small" /> : <Check size={16} />}
+                onPress={handleSubmit(onSubmit, onInvalid)}
+                opacity={isBusy ? 0.5 : 1}
+                disabled={isBusy}
+              >
+                {isSaving ? "Saving..." : "Save"}
+              </Button>
+            </XStack>
           </XStack>
-        </XStack>
-      </YStack>
-    </>
+        </YStack>
+      </KeyboardStickyView>
+    </KeyboardAvoidingView>
   );
 }
