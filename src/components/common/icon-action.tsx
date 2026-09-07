@@ -16,10 +16,6 @@ export default function IconAction({
       justifyContent="center"
     >
       <XStack
-        borderWidth={1}
-        borderColor={color}
-        borderRadius={100}
-        padding={9}
         backgroundColor="transparent"
         pressStyle={{ scale: 0.9, backgroundColor: color }}
         transition="quick"
