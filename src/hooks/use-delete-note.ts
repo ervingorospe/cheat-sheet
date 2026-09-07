@@ -8,36 +8,52 @@ type UseDeleteNoteOptions = {
   onDeleted: () => void;
 };
 
-export function useDeleteNote(noteId: string, { onDeleted }: UseDeleteNoteOptions) {
+export function useDeleteNote(
+  noteId: string,
+  { onDeleted }: UseDeleteNoteOptions,
+) {
   const { showToast } = useToast();
   const { show: showLoading, hide: hideLoading } = useLoadingOverlay();
 
-  const { mutate: deleteNoteMutation, isPending: isDeleting } = useMutation({
+  const {
+    mutate: deleteNoteMutation,
+    isPending: isDeleting,
+  } = useMutation({
     mutationFn: () => deleteNote(noteId),
+
     onMutate: () => {
-      showLoading({ message: "Deleting note..." });
+      showLoading({
+        message: "Deleting note...",
+      });
     },
+
     onSuccess: (result) => {
       if (result.error) {
         showToast(result.error);
         return;
       }
+
       onDeleted();
     },
+
     onError: () => {
       showToast("Something went wrong. Please try again.");
     },
+
     onSettled: () => {
       hideLoading();
     },
   });
 
-  const handleDelete = () => {
+  const confirmDeleteNote = () => {
     confirmDelete({
       title: "Delete note?",
       onConfirm: () => deleteNoteMutation(),
     });
   };
 
-  return { handleDelete, isDeleting };
+  return {
+    confirmDeleteNote,
+    isDeleting,
+  };
 }

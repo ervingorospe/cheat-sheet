@@ -3,11 +3,10 @@ import DocLinksEditor from "@/components/notes/doc-links-editor";
 import ImageLinksEditor from "@/components/notes/image-links-editor";
 import KeyPointsEditor from "@/components/notes/key-points-editor";
 import { AppFormInputs, Button, SizableText } from "@/components/theme";
-import { confirmDelete } from "@/lib/alerts";
+import { useDeleteNote } from "@/hooks/use-delete-note";
 import {
   Note,
   UpdateNoteInput,
-  deleteNote,
   deleteNoteImage,
   toDocLinks,
   toImageLinks,
@@ -20,10 +19,10 @@ import {
 } from "@/schema/notes/note-edit.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Trash2, X } from "@tamagui/lucide-icons-2";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useForm } from "react-hook-form";
-import { ScrollView, Spinner, XStack } from "tamagui";
+import { ScrollView, Spinner, XStack, YStack } from "tamagui";
 
 type NoteDetailEditProps = {
   note: Note;
@@ -56,15 +55,12 @@ export default function NoteDetailEdit({
     mode: "onChange",
   });
 
-  const { mutate: handleDelete, isPending: isDeleting } = useMutation({
-    mutationFn: () => deleteNote(note.id),
-    onSuccess: (result) => {
-      if (result.error) {
-        showToast(result.error);
-        return;
-      }
+  const { confirmDeleteNote, isDeleting } = useDeleteNote(note.id, {
+    onDeleted: () => {
+      queryClient.removeQueries({
+        queryKey: ["notes", "detail", note.id],
+      });
 
-      queryClient.removeQueries({ queryKey: ["notes", "detail", note.id] });
       queryClient.invalidateQueries({
         predicate: (query) =>
           query.queryKey[0] === "notes" && query.queryKey[1] !== "detail",
@@ -72,17 +68,7 @@ export default function NoteDetailEdit({
 
       router.back();
     },
-    onError: () => {
-      showToast("Something went wrong. Please try again.");
-    },
   });
-
-  const handleDeletePress = () => {
-    confirmDelete({
-      title: "Delete note?",
-      onConfirm: () => handleDelete(),
-    });
-  };
 
   const handleCancel = () => {
     const currentImages = getValues("image_links") ?? [];
@@ -129,88 +115,98 @@ export default function NoteDetailEdit({
   const isBusy = isSaving || isDeleting;
 
   return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      stickyHeaderIndices={[0]}
-      contentContainerStyle={{ paddingHorizontal: 10 }}
-    >
-      <XStack
-        justifyContent="space-between"
-        backgroundColor="$background"
-        paddingVertical="$md"
-        zIndex={10}
+    <>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 100 }}
       >
-        <Button
-          variant="text"
-          color="$error"
-          icon={isDeleting ? <Spinner size="small" /> : <Trash2 size={16} />}
-          onPress={handleDeletePress}
-          opacity={isBusy ? 0.5 : 1}
-          disabled={isBusy}
-        >
-          {isDeleting ? "Deleting..." : "Delete"}
-        </Button>
+        <Form>
+          <AppFormInputs>
+            <Form.Input
+              name="title"
+              control={control}
+              label="Title"
+              placeholder="Note title"
+            />
 
-        <XStack justifyContent="flex-end" gap="$md">
+            <Form.TextArea
+              name="content"
+              control={control}
+              label="Summary"
+              placeholder="Summary"
+              multiline
+              numberOfLines={10}
+            />
+
+            <SizableText fontSize="$3" fontWeight="700">
+              Images
+            </SizableText>
+            <ImageLinksEditor
+              control={control}
+              name="image_links"
+              originalImages={originalImages}
+            />
+
+            <SizableText fontSize="$3" fontWeight="700">
+              Key Points
+            </SizableText>
+            <KeyPointsEditor control={control} name="key_points" />
+
+            <SizableText fontSize="$3" fontWeight="700">
+              Links
+            </SizableText>
+            <DocLinksEditor control={control} name="doc_links" />
+          </AppFormInputs>
+        </Form>
+      </ScrollView>
+
+      <YStack
+        position="absolute"
+        bottom={0}
+        left={0}
+        right={0}
+        alignItems="center"
+        paddingBottom="$xl"
+        paddingTop="$md"
+        paddingHorizontal="40"
+        backgroundColor="$background"
+      >
+        <XStack width="100%" alignItems="center" justifyContent="space-between">
           <Button
             variant="text"
-            icon={<X size={16} />}
-            onPress={handleCancel}
+            color="$error"
+            icon={isDeleting ? <Spinner size="small" /> : <Trash2 size={16} />}
+            onPress={confirmDeleteNote}
             opacity={isBusy ? 0.5 : 1}
             disabled={isBusy}
           >
-            Cancel
+            {isDeleting ? "Deleting..." : "Delete"}
           </Button>
 
-          <Button
-            variant="outline"
-            icon={isSaving ? <Spinner size="small" /> : <Check size={16} />}
-            onPress={handleSubmit(onSubmit, onInvalid)}
-            opacity={isBusy ? 0.5 : 1}
-            disabled={isBusy}
-          >
-            {isSaving ? "Saving..." : "Save"}
-          </Button>
+          <XStack justifyContent="flex-end" gap="$xl">
+            <Button
+              variant="text"
+              icon={<X size={16} />}
+              onPress={handleCancel}
+              opacity={isBusy ? 0.5 : 1}
+              disabled={isBusy}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              variant="text"
+              color="$primary"
+              icon={isSaving ? <Spinner size="small" /> : <Check size={16} />}
+              onPress={handleSubmit(onSubmit, onInvalid)}
+              opacity={isBusy ? 0.5 : 1}
+              disabled={isBusy}
+            >
+              {isSaving ? "Saving..." : "Save"}
+            </Button>
+          </XStack>
         </XStack>
-      </XStack>
-      <Form>
-        <AppFormInputs>
-          <Form.Input
-            name="title"
-            control={control}
-            label="Title"
-            placeholder="Note title"
-          />
-
-          <Form.TextArea
-            name="content"
-            control={control}
-            label="Summary"
-            placeholder="Summary"
-            multiline
-            numberOfLines={10}
-          />
-
-          <SizableText fontSize="$3" fontWeight="700">
-            Images
-          </SizableText>
-          <ImageLinksEditor
-            control={control}
-            name="image_links"
-            originalImages={originalImages}
-          />
-
-          <SizableText fontSize="$3" fontWeight="700">
-            Key Points
-          </SizableText>
-          <KeyPointsEditor control={control} name="key_points" />
-
-          <SizableText fontSize="$3" fontWeight="700">
-            Links
-          </SizableText>
-          <DocLinksEditor control={control} name="doc_links" />
-        </AppFormInputs>
-      </Form>
-    </ScrollView>
+      </YStack>
+    </>
   );
 }

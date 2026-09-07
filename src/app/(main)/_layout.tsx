@@ -20,7 +20,6 @@ export default function TabLayout() {
           headerShown: false,
           contentStyle: {
             backgroundColor: theme.background.val,
-            paddingBottom: 30,
           },
         }}
       />

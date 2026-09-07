@@ -19,7 +19,7 @@ export default function IconAction({
         borderWidth={1}
         borderColor={color}
         borderRadius={100}
-        padding={7}
+        padding={9}
         backgroundColor="transparent"
         pressStyle={{ scale: 0.9, backgroundColor: color }}
         transition="quick"
