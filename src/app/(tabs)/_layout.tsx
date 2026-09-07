@@ -6,7 +6,7 @@ import { useTheme, YStack } from "tamagui";
 const titleMap: Record<string, string> = {
   "/library": "Library",
   "/settings": "Settings",
-  "/folder": "Folder",
+  "/folder": "Collections",
 };
 
 export default function TabLayout() {

@@ -6,6 +6,7 @@ import { useNotesList } from "@/hooks/use-notes-list";
 import { useCallback, useMemo } from "react";
 import { FlatList } from "react-native";
 import { Spinner, YStack } from "tamagui";
+import FolderListSkeleton from "./folder-card-skeleton";
 
 type ContentItem =
   | { type: "folder"; id: string; data: any }
@@ -60,6 +61,10 @@ export default function FolderContents({
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const isLoading = foldersLoading || notesLoading;
+
+  if (isLoading) {
+    return <FolderListSkeleton />;
+  }
 
   return (
     <FlatList

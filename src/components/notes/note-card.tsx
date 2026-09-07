@@ -92,11 +92,11 @@ const NoteCardContent = forwardRef<any, NoteCardContentProps>(
             width={36}
             height={36}
             borderRadius={18}
-            backgroundColor="$paperVariant"
+            backgroundColor="$brand"
             alignItems="center"
             justifyContent="center"
           >
-            <ChevronRight size={20} color="$secondary" />
+            <ChevronRight size={20} color="$textBody" />
           </XStack>
         </XStack>
       </Paper>

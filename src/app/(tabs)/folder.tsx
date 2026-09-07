@@ -1,6 +1,7 @@
 import IconAction from "@/components/common/icon-action";
-import CreateFolderDialog from "@/components/folders/create-folder-dialog";
+import CreateFolderSheet from "@/components/folders/create-folder-container";
 import FolderCard from "@/components/folders/folder-card";
+import FolderListSkeleton from "@/components/folders/folder-card-skeleton";
 import Screen from "@/components/layout/screen";
 import { SizableText } from "@/components/theme";
 import { useFoldersList } from "@/hooks/use-folders-list";
@@ -10,7 +11,8 @@ import { FlatList } from "react-native";
 import { XStack, YStack } from "tamagui";
 
 export default function FolderScreen() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCreateSheetOpen, setIsCreateSheetOpen] = useState(false);
+
   const { data: folders, isLoading } = useFoldersList(null);
 
   const renderItem = useCallback(
@@ -20,22 +22,32 @@ export default function FolderScreen() {
     [],
   );
 
+  if (isLoading) {
+    return (
+      <YStack paddingHorizontal={10} marginTop={20}>
+        <FolderListSkeleton />
+      </YStack>
+    );
+  }
+
   return (
     <Screen>
-      <XStack alignItems="center" justifyContent="flex-end">
+      <XStack alignItems="center" justifyContent="flex-end" paddingBottom="$sm">
         <IconAction
-          key="add-folder"
           size="$2"
           icon={FolderPlus}
-          onPress={() => setIsDialogOpen(true)}
+          onPress={() => setIsCreateSheetOpen(true)}
         />
       </XStack>
 
       <FlatList
-        style={{ paddingVertical: 20 }}
         data={folders ?? []}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
+        ItemSeparatorComponent={() => (
+          <XStack height={1} backgroundColor="$paper" />
+        )}
+        showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           !isLoading ? (
             <YStack alignItems="center" paddingTop="$xxl">
@@ -45,10 +57,10 @@ export default function FolderScreen() {
         }
       />
 
-      <CreateFolderDialog
-        visible={isDialogOpen}
+      <CreateFolderSheet
+        open={isCreateSheetOpen}
         parentFolderId={null}
-        onClose={() => setIsDialogOpen(false)}
+        onClose={() => setIsCreateSheetOpen(false)}
       />
     </Screen>
   );
