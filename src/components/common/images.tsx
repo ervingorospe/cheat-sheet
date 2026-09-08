@@ -1,53 +1,59 @@
 import ImageThumbnail from "@/components/common/image-thumbnail";
-import { ChevronLeft, ChevronRight } from "@tamagui/lucide-icons-2";
 import { Sheet } from "@tamagui/sheet";
-import { useState } from "react";
-import { Image, ImageStyle } from "react-native";
-import { Button, SizableText, XStack, YStack } from "tamagui";
+import { useRef, useState } from "react";
+import {
+  Dimensions,
+  FlatList,
+  Image,
+  ImageStyle,
+  ViewToken,
+} from "react-native";
+import { SizableText, XStack, YStack } from "tamagui";
 
 type ImagesProps = {
   images: string[];
   thumbnailStyle?: ImageStyle;
 };
 
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
 export default function Images({ images, thumbnailStyle }: ImagesProps) {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  const viewerRef = useRef<FlatList<string>>(null);
 
   if (images.length === 0) {
     return null;
   }
 
-  const selectedIndex = selectedImage ? images.indexOf(selectedImage) : -1;
-
-  const hasPrevious = selectedIndex > 0;
-  const hasNext = selectedIndex < images.length - 1;
-
-  const handlePrevious = () => {
-    if (hasPrevious) {
-      setSelectedImage(images[selectedIndex - 1]);
-    }
-  };
-
-  const handleNext = () => {
-    if (hasNext) {
-      setSelectedImage(images[selectedIndex + 1]);
-    }
+  const handleOpen = (index: number) => {
+    setSelectedIndex(index);
   };
 
   const handleClose = () => {
-    setSelectedImage(null);
+    setSelectedIndex(null);
   };
+
+  const handleViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      const index = viewableItems[0]?.index;
+
+      if (index != null) {
+        setSelectedIndex(index);
+      }
+    },
+  ).current;
 
   return (
     <>
       {/* Image thumbnails */}
       <XStack flexWrap="wrap" gap="$sm" marginBottom="$lg">
-        {images.map((url) => (
+        {images.map((url, index) => (
           <ImageThumbnail
             key={url}
             url={url}
             style={thumbnailStyle}
-            onPress={() => setSelectedImage(url)}
+            onPress={() => handleOpen(index)}
           />
         ))}
       </XStack>
@@ -55,7 +61,7 @@ export default function Images({ images, thumbnailStyle }: ImagesProps) {
       {/* Image viewer */}
       <Sheet
         modal
-        open={selectedImage !== null}
+        open={selectedIndex !== null}
         onOpenChange={(open: boolean) => {
           if (!open) {
             handleClose();
@@ -68,43 +74,50 @@ export default function Images({ images, thumbnailStyle }: ImagesProps) {
 
         <Sheet.Handle />
 
-        <Sheet.Frame padding="$md" justifyContent="center" alignItems="center">
-          {selectedImage && (
+        <Sheet.Frame
+          flex={1}
+          backgroundColor="$background"
+          justifyContent="center"
+          alignItems="center"
+        >
+          {selectedIndex !== null && (
             <YStack flex={1} width="100%" position="relative">
-              <Image
-                source={{ uri: selectedImage }}
-                style={{
-                  width: "100%",
-                  height: "100%",
+              <FlatList
+                ref={viewerRef}
+                data={images}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                initialScrollIndex={selectedIndex}
+                keyExtractor={(url) => url}
+                getItemLayout={(_, index) => ({
+                  length: SCREEN_WIDTH,
+                  offset: SCREEN_WIDTH * index,
+                  index,
+                })}
+                onViewableItemsChanged={handleViewableItemsChanged}
+                viewabilityConfig={{
+                  itemVisiblePercentThreshold: 50,
                 }}
-                resizeMode="contain"
+                renderItem={({ item }) => (
+                  <YStack
+                    width={SCREEN_WIDTH}
+                    flex={1}
+                    justifyContent="center"
+                    alignItems="center"
+                    padding="$md"
+                  >
+                    <Image
+                      source={{ uri: item }}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                      }}
+                      resizeMode="contain"
+                    />
+                  </YStack>
+                )}
               />
-
-              {/* Previous */}
-              {hasPrevious && (
-                <Button
-                  position="absolute"
-                  left={0}
-                  top="50%"
-                  circular
-                  size="$3"
-                  icon={ChevronLeft}
-                  onPress={handlePrevious}
-                />
-              )}
-
-              {/* Next */}
-              {hasNext && (
-                <Button
-                  position="absolute"
-                  right={0}
-                  top="50%"
-                  circular
-                  size="$3"
-                  icon={ChevronRight}
-                  onPress={handleNext}
-                />
-              )}
 
               {/* Image counter */}
               <SizableText
