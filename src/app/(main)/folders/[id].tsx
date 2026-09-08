@@ -1,10 +1,9 @@
-import IconAction from "@/components/common/icon-action";
 import CreateFolderSheet from "@/components/folders/create-folder-sheet";
 import EditFolderSheet from "@/components/folders/edit-folder-sheet";
 import FolderContents from "@/components/folders/folder-contents";
 import ExpandableAction from "@/components/layout/expandable-action";
 import Screen from "@/components/layout/screen";
-import { SizableText } from "@/components/theme";
+import { Button, SizableText } from "@/components/theme";
 import { useDeleteFolder } from "@/hooks/use-delete-folder";
 import { useFolder } from "@/hooks/use-folder";
 import { FolderPlus, Home, Pencil, Trash2 } from "@tamagui/lucide-icons-2";
@@ -30,49 +29,49 @@ export default function FolderDetailScreen() {
 
   return (
     <Screen>
-      <XStack
-        alignItems="center"
-        justifyContent="space-between"
-        marginTop="$md"
-      >
+      <XStack justifyContent="space-between" alignItems="center">
+        <Button
+          variant="text"
+          key="delete-folder"
+          icon={
+            isBusyDeleting ? (
+              <Spinner color="$error" />
+            ) : (
+              <Trash2 size="$1" color="$error" />
+            )
+          }
+          color="$error"
+          onPress={confirmDeleteFolder}
+          disabled={isBusyDeleting}
+        >
+          {isBusyDeleting ? "Deleting..." : "Delete"}
+        </Button>
+
+        <XStack gap="$xl">
+          <Button
+            variant="text"
+            icon={<Pencil size="$1" />}
+            onPress={() => setIsEditSheetOpen(true)}
+            disabled={isBusyDeleting}
+          >
+            Edit
+          </Button>
+
+          <Button
+            variant="text"
+            color="$primary"
+            icon={<FolderPlus size="$1" />}
+            onPress={() => setIsCreateSheetOpen(true)}
+            disabled={isBusyDeleting}
+          >
+            Folder
+          </Button>
+        </XStack>
+      </XStack>
+      <XStack marginTop="$md">
         <SizableText fontSize="$6" fontWeight="600" numberOfLines={1}>
           {folder?.name ?? "Folder"}
         </SizableText>
-
-        <XStack gap="$sm" alignItems="center">
-          {isBusyDeleting ? (
-            <XStack
-              width={60}
-              height="100%"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Spinner size="small" color="$error" />
-            </XStack>
-          ) : (
-            <IconAction
-              key="delete-folder"
-              size="$2"
-              icon={Trash2}
-              color="$error"
-              onPress={confirmDeleteFolder}
-            />
-          )}
-
-          <IconAction
-            key="edit-folder"
-            size="$2"
-            icon={Pencil}
-            onPress={() => setIsEditSheetOpen(true)}
-          />
-
-          <IconAction
-            key="add-folder"
-            size="$2"
-            icon={FolderPlus}
-            onPress={() => setIsCreateSheetOpen(true)}
-          />
-        </XStack>
       </XStack>
 
       <FolderContents parentFolderId={id} />

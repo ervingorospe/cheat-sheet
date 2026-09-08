@@ -1,9 +1,8 @@
-import IconAction from "@/components/common/icon-action";
 import CreateFolderSheet from "@/components/folders/create-folder-sheet";
 import FolderCard from "@/components/folders/folder-card";
 import FolderListSkeleton from "@/components/folders/folder-card-skeleton";
 import Screen from "@/components/layout/screen";
-import { SizableText } from "@/components/theme";
+import { Button, SizableText } from "@/components/theme";
 import { useFoldersList } from "@/hooks/use-folders-list";
 import { FolderPlus } from "@tamagui/lucide-icons-2";
 import { useCallback, useState } from "react";
@@ -33,11 +32,14 @@ export default function FolderScreen() {
   return (
     <Screen>
       <XStack alignItems="center" justifyContent="flex-end" paddingBottom="$sm">
-        <IconAction
-          size="$2"
-          icon={FolderPlus}
+        <Button
+          variant="text"
+          color="$primary"
+          icon={<FolderPlus size="$1" />}
           onPress={() => setIsCreateSheetOpen(true)}
-        />
+        >
+          Folder
+        </Button>
       </XStack>
 
       <FlatList
