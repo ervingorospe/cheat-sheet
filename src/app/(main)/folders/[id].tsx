@@ -5,17 +5,28 @@ import FolderContents from "@/components/folders/folder-contents";
 import ExpandableAction from "@/components/layout/expandable-action";
 import Screen from "@/components/layout/screen";
 import { SizableText } from "@/components/theme";
+import { useDeleteFolder } from "@/hooks/use-delete-folder";
 import { useFolder } from "@/hooks/use-folder";
-import { FolderPlus, Home, Pencil } from "@tamagui/lucide-icons-2";
-import { Link, useLocalSearchParams } from "expo-router";
+import { FolderPlus, Pencil, Trash2 } from "@tamagui/lucide-icons-2";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { XStack, YStack } from "tamagui";
+import { Spinner, XStack, YStack } from "tamagui";
 
 export default function FolderDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: folder } = useFolder(id);
+  const router = useRouter();
   const [isCreateSheetOpen, setIsCreateSheetOpen] = useState(false);
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
+
+  const { confirmDeleteFolder, isDeleting, isCheckingImpact } = useDeleteFolder(
+    id,
+    {
+      onDeleted: () => router.back(),
+    },
+  );
+
+  const isBusyDeleting = isDeleting || isCheckingImpact;
 
   return (
     <Screen>
@@ -23,23 +34,41 @@ export default function FolderDetailScreen() {
         alignItems="center"
         justifyContent="space-between"
         marginTop="$md"
-        paddingBottom="$md"
       >
         <SizableText fontSize="$6" fontWeight="600" numberOfLines={1}>
           {folder?.name ?? "Folder"}
         </SizableText>
 
-        <XStack>
+        <XStack gap="$sm" alignItems="center">
+          {isBusyDeleting ? (
+            <XStack
+              width={60}
+              height="100%"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Spinner size="small" color="$error" />
+            </XStack>
+          ) : (
+            <IconAction
+              key="delete-folder"
+              size="$2"
+              icon={Trash2}
+              color="$error"
+              onPress={confirmDeleteFolder}
+            />
+          )}
+
           <IconAction
             key="edit-folder"
-            size="$1"
+            size="$2"
             icon={Pencil}
             onPress={() => setIsEditSheetOpen(true)}
           />
 
           <IconAction
             key="add-folder"
-            size="$1"
+            size="$2"
             icon={FolderPlus}
             onPress={() => setIsCreateSheetOpen(true)}
           />
@@ -63,24 +92,8 @@ export default function FolderDetailScreen() {
         />
       )}
 
-      <YStack position="absolute" width="100%" bottom="$xl" right="$xl">
-        <XStack paddingLeft={10} width="100%" justifyContent="space-between">
-          <Link href="/" asChild>
-            <YStack
-              padding="15"
-              borderRadius={100}
-              backgroundColor="$paperVariant"
-              transition="quick"
-              pressStyle={{ scale: 0.9 }}
-            >
-              <Home size="$1" color="$secondary" />
-            </YStack>
-          </Link>
-
-          <XStack marginBottom="$-4">
-            <ExpandableAction folderId={id} />
-          </XStack>
-        </XStack>
+      <YStack position="absolute" bottom="$xl" right="$xl">
+        <ExpandableAction folderId={id} />
       </YStack>
     </Screen>
   );

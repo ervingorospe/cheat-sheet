@@ -1,6 +1,7 @@
 import { TABLES } from "@/lib/constants/tables";
 import { Database } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
+import { deleteNoteImage, toImageLinks } from "./notes";
 
 export type Folder = Database["public"]["Tables"]["folders"]["Row"];
 
@@ -84,5 +85,77 @@ export async function updateFolder(id: string, name: string): Promise<{ data: Fo
   } catch (error) {
     console.error("Unexpected error updating folder:", error);
     return { data: null, error: "Something went wrong. Please try again." };
+  }
+}
+
+export async function getFolderDeleteImpact(id: string): Promise<{ folderCount: number; noteCount: number }> {
+  const { data: folderIds, error: idsError } = await supabase.rpc("get_descendant_folder_ids", { folder_id: id });
+
+  if (idsError || !folderIds) {
+    console.error("Failed to get descendant folders:", idsError);
+    return { folderCount: 0, noteCount: 0 };
+  }
+
+  const ids = folderIds.map((row: { id: string }) => row.id);
+
+  const { count, error: countError } = await supabase
+    .from(TABLES.NOTES)
+    .select("id", { count: "exact", head: true })
+    .in("folder_id", ids);
+
+  if (countError) {
+    console.error("Failed to count notes:", countError);
+  }
+
+  return { folderCount: ids.length - 1, noteCount: count ?? 0 };
+}
+
+export async function deleteFolder(id: string): Promise<{ error: string | null }> {
+  try {
+    const { data: folderIds, error: idsError } = await supabase.rpc("get_descendant_folder_ids", { folder_id: id });
+
+    if (idsError || !folderIds) {
+      console.error("Failed to get descendant folders:", idsError);
+      return { error: "Something went wrong. Please try again." };
+    }
+
+    const ids = folderIds.map((row: { id: string }) => row.id);
+
+    const { data: notesToDelete, error: fetchNotesError } = await supabase
+      .from(TABLES.NOTES)
+      .select("id, image_links")
+      .in("folder_id", ids);
+
+    if (fetchNotesError) {
+      console.error("Failed to fetch notes for cleanup:", fetchNotesError);
+    }
+
+    const allImageUrls = (notesToDelete ?? []).flatMap((note) => toImageLinks(note.image_links));
+
+    if (allImageUrls.length > 0) {
+      const results = await Promise.all(allImageUrls.map((url) => deleteNoteImage(url)));
+      console.log("Deleted images for folder cleanup:", results);
+    }
+
+    if (notesToDelete && notesToDelete.length > 0) {
+      const { error: deleteNotesError } = await supabase.from(TABLES.NOTES).delete().in("folder_id", ids);
+
+      if (deleteNotesError) {
+        console.error("Failed to delete notes:", deleteNotesError);
+        return { error: deleteNotesError.message };
+      }
+    }
+
+    const { error: deleteFolderError } = await supabase.from(TABLES.FOLDERS).delete().eq("id", id);
+
+    if (deleteFolderError) {
+      console.error("Failed to delete folder:", deleteFolderError);
+      return { error: deleteFolderError.message };
+    }
+
+    return { error: null };
+  } catch (error) {
+    console.error("Unexpected error deleting folder:", error);
+    return { error: "Something went wrong. Please try again." };
   }
 }
