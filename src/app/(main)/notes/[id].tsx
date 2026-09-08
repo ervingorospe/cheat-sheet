@@ -1,3 +1,4 @@
+import MoveNoteSheet from "@/components/folders/move-note-sheet";
 import Screen from "@/components/layout/screen";
 import NoteDetailEdit from "@/components/notes/note-detail-edit";
 import NoteDetailSkeleton from "@/components/notes/note-detail-skeleton";
@@ -46,6 +47,7 @@ export default function NoteDetailScreen() {
   const { showToast } = useToast();
 
   const [isEditing, setIsEditing] = useState(isEdit === "true");
+  const [isMoveSheetOpen, setIsMoveSheetOpen] = useState(false);
 
   const { mutate: saveNote, isPending: isSaving } = useMutation({
     mutationFn: (updates: UpdateNoteInput) => updateNote(id, updates),
@@ -159,7 +161,7 @@ export default function NoteDetailScreen() {
                 <Button
                   variant="text"
                   icon={<FolderInput size={16} />}
-                  onPress={() => {}}
+                  onPress={() => setIsMoveSheetOpen(true)}
                 >
                   Move
                 </Button>
@@ -175,6 +177,12 @@ export default function NoteDetailScreen() {
               </XStack>
             </XStack>
           </YStack>
+          <MoveNoteSheet
+            open={isMoveSheetOpen}
+            noteId={id}
+            currentFolderId={note.folder_id}
+            onClose={() => setIsMoveSheetOpen(false)}
+          />
         </>
       )}
     </Screen>

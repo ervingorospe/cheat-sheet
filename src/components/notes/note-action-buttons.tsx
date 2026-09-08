@@ -5,18 +5,16 @@ import { FolderInput, Pencil, Trash2 } from "@tamagui/lucide-icons-2";
 type NoteActionButtonsProps = {
   onEdit: () => void;
   onDelete: () => void;
+  onMove: () => void;
   size?: string | number;
 };
 
 export default function NoteActionButtons({
   onEdit,
   onDelete,
+  onMove,
   size = 20,
 }: NoteActionButtonsProps) {
-  const handleMove = () => {
-    console.log("move");
-  };
-
   const actionButtons: IconActionProps[] = [
     {
       key: "edit",
@@ -28,7 +26,7 @@ export default function NoteActionButtons({
       key: "move",
       icon: FolderInput,
       color: "$secondary",
-      onPress: () => handleMove(),
+      onPress: () => onMove(),
     },
     {
       key: "delete",

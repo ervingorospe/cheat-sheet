@@ -55,7 +55,7 @@ export async function createNote(
 // =================================================================================
 const NOTES_PAGE_SIZE = 10;
 
-export type NoteListItem = Pick<Note, "id" | "title" | "content" | "created_at">;
+export type NoteListItem = Pick<Note, "id" | "title" | "content" | "created_at" | "folder_id">;
 
 export type NotesPage = {
   notes: NoteListItem[];
@@ -73,7 +73,7 @@ export async function fetchNotesPage(cursor: string | null, folderId?: string | 
 
   let query = supabase
     .from(TABLES.NOTES)
-    .select("id, title, content, created_at")
+    .select("id, title, content, created_at, folder_id")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(NOTES_PAGE_SIZE);
@@ -299,5 +299,26 @@ export async function deleteNoteImage(
     return {
       error: "Something went wrong. Please try again.",
     };
+  }
+}
+
+export async function moveNote(id: string, folderId: string | null): Promise<{ data: Note | null; error: string | null }> {
+  try {
+    const { data, error } = await supabase
+      .from(TABLES.NOTES)
+      .update({ folder_id: folderId })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Failed to move note:", error);
+      return { data: null, error: error.message };
+    }
+
+    return { data, error: null };
+  } catch (error) {
+    console.error("Unexpected error moving note:", error);
+    return { data: null, error: "Something went wrong. Please try again." };
   }
 }

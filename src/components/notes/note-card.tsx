@@ -1,3 +1,4 @@
+import MoveNoteSheet from "@/components/folders/move-note-sheet";
 import { H4, Paper } from "@/components/theme";
 import { useDeleteNote } from "@/hooks/use-delete-note";
 import { NoteListItem } from "@/lib/notes";
@@ -5,7 +6,7 @@ import { formatDate } from "@/utils/date";
 import { ChevronRight } from "@tamagui/lucide-icons-2";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, router } from "expo-router";
-import { forwardRef, memo, useRef } from "react";
+import { forwardRef, memo, useRef, useState } from "react";
 import ReanimatedSwipeable, {
   SwipeableMethods,
 } from "react-native-gesture-handler/ReanimatedSwipeable";
@@ -14,12 +15,12 @@ import NoteActionButtons from "./note-action-buttons";
 
 type NoteCardProps = {
   note: NoteListItem;
-  folderId?: string | null;
 };
 
-function NoteCard({ note, folderId }: NoteCardProps) {
+function NoteCard({ note }: NoteCardProps) {
   const swipeableRef = useRef<SwipeableMethods>(null);
   const queryClient = useQueryClient();
+  const [isMoveSheetOpen, setIsMoveSheetOpen] = useState(false);
 
   const { confirmDeleteNote, isDeleting } = useDeleteNote(note.id, {
     onDeleted: () => {
@@ -46,22 +47,43 @@ function NoteCard({ note, folderId }: NoteCardProps) {
     router.push(`/notes/${note.id}?isEdit=true`);
   };
 
+  const handleMovePress = () => {
+    swipeableRef.current?.close();
+    setIsMoveSheetOpen(true);
+  };
+
   return (
-    <ReanimatedSwipeable
-      ref={swipeableRef}
-      overshootRight={false}
-      rightThreshold={40}
-      containerStyle={{ marginBottom: 12 }}
-      renderRightActions={() => (
-        <XStack height="100%">
-          <NoteActionButtons onEdit={handleEdit} onDelete={handleDeletePress} />
-        </XStack>
-      )}
-    >
-      <Link href={{ pathname: "/notes/[id]", params: { id: note.id } }} asChild>
-        <NoteCardContent note={note} />
-      </Link>
-    </ReanimatedSwipeable>
+    <>
+      <ReanimatedSwipeable
+        ref={swipeableRef}
+        overshootRight={false}
+        rightThreshold={40}
+        containerStyle={{ marginBottom: 12 }}
+        renderRightActions={() => (
+          <XStack height="100%">
+            <NoteActionButtons
+              onEdit={handleEdit}
+              onMove={handleMovePress}
+              onDelete={handleDeletePress}
+            />
+          </XStack>
+        )}
+      >
+        <Link
+          href={{ pathname: "/notes/[id]", params: { id: note.id } }}
+          asChild
+        >
+          <NoteCardContent note={note} />
+        </Link>
+      </ReanimatedSwipeable>
+
+      <MoveNoteSheet
+        open={isMoveSheetOpen}
+        noteId={note.id}
+        currentFolderId={note.folder_id}
+        onClose={() => setIsMoveSheetOpen(false)}
+      />
+    </>
   );
 }
 
