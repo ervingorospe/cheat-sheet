@@ -4,7 +4,7 @@ import { YStack } from "tamagui";
 function Screen({ children }: PropsWithChildren) {
   return (
     <YStack flex={1} backgroundColor="$background">
-      <YStack flex={1} padding={20}>
+      <YStack flex={1} paddingHorizontal={10} paddingTop={20}>
         {children}
       </YStack>
     </YStack>

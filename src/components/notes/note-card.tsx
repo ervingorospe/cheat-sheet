@@ -15,6 +15,7 @@ import NoteActionButtons from "./note-action-buttons";
 
 type NoteCardProps = {
   note: NoteListItem;
+  folderId?: string;
 };
 
 function NoteCard({ note }: NoteCardProps) {
@@ -22,7 +23,7 @@ function NoteCard({ note }: NoteCardProps) {
   const queryClient = useQueryClient();
   const [isMoveSheetOpen, setIsMoveSheetOpen] = useState(false);
 
-  const { confirmDeleteNote, isDeleting } = useDeleteNote(note.id, {
+  const { confirmDeleteNote } = useDeleteNote(note.id, {
     onDeleted: () => {
       queryClient.removeQueries({
         queryKey: ["notes", "detail", note.id],

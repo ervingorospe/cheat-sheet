@@ -1,7 +1,7 @@
 import AppHeader from "@/components/layout/app-header";
 import CustomTabBar from "@/components/layout/custom-tab-bar";
 import { Stack, usePathname } from "expo-router";
-import { useTheme, YStack } from "tamagui";
+import { useTheme, XStack, YStack } from "tamagui";
 
 const titleMap: Record<string, string> = {
   "/library": "Library",
@@ -27,7 +27,9 @@ export default function TabLayout() {
         }}
       />
 
-      <CustomTabBar />
+      <XStack position="absolute" bottom="0" width="100%">
+        <CustomTabBar />
+      </XStack>
     </YStack>
   );
 }

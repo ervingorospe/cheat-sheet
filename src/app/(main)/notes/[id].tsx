@@ -134,9 +134,9 @@ export default function NoteDetailScreen() {
             left={0}
             right={0}
             alignItems="center"
-            paddingBottom="$xl"
+            paddingBottom={20}
             paddingTop="$sm"
-            paddingHorizontal="40"
+            paddingHorizontal="25"
             backgroundColor="$background"
           >
             <XStack
@@ -157,7 +157,7 @@ export default function NoteDetailScreen() {
                 Delete
               </Button>
 
-              <XStack justifyContent="flex-end" gap="$xl">
+              <XStack justifyContent="flex-end" gap="$xl" marginRight={10}>
                 <Button
                   variant="text"
                   icon={<FolderInput size={16} />}

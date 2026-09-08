@@ -9,7 +9,7 @@ import { useFolder } from "@/hooks/use-folder";
 import { FolderPlus, Home, Pencil, Trash2 } from "@tamagui/lucide-icons-2";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Spinner, XStack, YStack } from "tamagui";
+import { Spinner, XStack } from "tamagui";
 
 export default function FolderDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -91,22 +91,22 @@ export default function FolderDetailScreen() {
         />
       )}
 
-      <YStack position="absolute" bottom="$xl" width="100%" right="$xl">
-        <XStack width="100%" justifyContent="space-between">
-          <Link href="/" asChild>
-            <XStack
-              backgroundColor="$paperVariant"
-              borderRadius={100}
-              padding={13}
-              pressStyle={{ scale: 0.9 }}
-            >
-              <Home size="$1.5" color="$secondary" />
-            </XStack>
-          </Link>
+      <XStack position="absolute" bottom="$xl" left="$lg">
+        <Link href="/" asChild>
+          <XStack
+            backgroundColor="$paperVariant"
+            borderRadius={100}
+            padding={13}
+            pressStyle={{ scale: 0.9 }}
+          >
+            <Home size="$1.5" color="$secondary" />
+          </XStack>
+        </Link>
+      </XStack>
 
-          <ExpandableAction folderId={id} />
-        </XStack>
-      </YStack>
+      <XStack position="absolute" bottom="$lg" right="$lg">
+        <ExpandableAction folderId={id} />
+      </XStack>
     </Screen>
   );
 }

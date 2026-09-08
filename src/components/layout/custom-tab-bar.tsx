@@ -10,7 +10,12 @@ export default function CustomTabBar() {
   const pathname = usePathname();
 
   return (
-    <YStack alignItems="center" paddingBottom="$xl" paddingHorizontal="$xl">
+    <YStack
+      backgroundColor="transparent"
+      alignItems="center"
+      paddingBottom="$md"
+      paddingHorizontal="$xl"
+    >
       <Paper>
         <XStack width="100%" alignItems="center" justifyContent="space-between">
           {leftIcons.map((item) => {

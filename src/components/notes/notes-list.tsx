@@ -26,7 +26,7 @@ export default function NotesList({
 
   const renderItem = useCallback(
     ({ item }: ListRenderItemInfo<NoteListItem>) => (
-      <NoteCard note={item} folderId={folderId} />
+      <NoteCard note={item} folderId={folderId ?? undefined} />
     ),
     [folderId],
   );
@@ -49,7 +49,6 @@ export default function NotesList({
 
   return (
     <FlatList
-      style={{ paddingVertical: 20 }}
       data={notes}
       keyExtractor={(item) => item.id}
       renderItem={renderItem}

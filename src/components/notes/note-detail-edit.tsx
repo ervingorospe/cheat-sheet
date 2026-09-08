@@ -193,7 +193,7 @@ export default function NoteDetailEdit({
         <YStack
           alignItems="center"
           paddingTop="$sm"
-          paddingBottom="$xl"
+          paddingBottom={50}
           paddingHorizontal="15"
           backgroundColor="$background"
         >
@@ -215,7 +215,7 @@ export default function NoteDetailEdit({
               {isDeleting ? "Deleting..." : "Delete"}
             </Button>
 
-            <XStack justifyContent="flex-end" gap="$xl">
+            <XStack justifyContent="flex-end" gap="$xl" marginRight={10}>
               <Button
                 variant="text"
                 icon={<X size={16} />}
