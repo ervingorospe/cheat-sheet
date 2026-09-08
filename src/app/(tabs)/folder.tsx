@@ -1,5 +1,5 @@
 import IconAction from "@/components/common/icon-action";
-import CreateFolderSheet from "@/components/folders/create-folder-container";
+import CreateFolderSheet from "@/components/folders/create-folder-sheet";
 import FolderCard from "@/components/folders/folder-card";
 import FolderListSkeleton from "@/components/folders/folder-card-skeleton";
 import Screen from "@/components/layout/screen";

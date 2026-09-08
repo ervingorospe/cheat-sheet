@@ -15,7 +15,8 @@ export type CreateNoteResult = {
 
 export async function createNote(
   generatedNotes: GeneratedNotes,
-  imageLinks: string[] = []
+  imageLinks: string[] = [],
+  folderId: string | null = null
 ): Promise<CreateNoteResult> {
   try {
     const {
@@ -30,6 +31,7 @@ export async function createNote(
       .from(TABLES.NOTES)
       .insert({
         user_id: user.id,
+        folder_id: folderId,
         title: generatedNotes.title,
         content: generatedNotes.summary,
         key_points: generatedNotes.keyPoints,

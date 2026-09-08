@@ -65,3 +65,24 @@ export async function fetchFolderById(id: string): Promise<Folder | null> {
 
   return data;
 }
+
+export async function updateFolder(id: string, name: string): Promise<{ data: Folder | null; error: string | null }> {
+  try {
+    const { data, error } = await supabase
+      .from(TABLES.FOLDERS)
+      .update({ name })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Failed to update folder:", error);
+      return { data: null, error: error.message };
+    }
+
+    return { data, error: null };
+  } catch (error) {
+    console.error("Unexpected error updating folder:", error);
+    return { data: null, error: "Something went wrong. Please try again." };
+  }
+}

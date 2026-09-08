@@ -1,15 +1,17 @@
 import FolderCard from "@/components/folders/folder-card";
 import NoteCard from "@/components/notes/note-card";
-import { SizableText } from "@/components/theme";
+import { H4, SizableText } from "@/components/theme";
 import { useFoldersList } from "@/hooks/use-folders-list";
 import { useNotesList } from "@/hooks/use-notes-list";
+import { Notebook } from "@tamagui/lucide-icons-2";
 import { useCallback, useMemo } from "react";
 import { FlatList } from "react-native";
-import { Spinner, YStack } from "tamagui";
+import { Separator, Spinner, YStack } from "tamagui";
 import FolderListSkeleton from "./folder-card-skeleton";
 
 type ContentItem =
   | { type: "folder"; id: string; data: any }
+  | { type: "notes-header"; id: string }
   | { type: "note"; id: string; data: any };
 
 export default function FolderContents({
@@ -19,6 +21,7 @@ export default function FolderContents({
 }) {
   const { data: folders, isLoading: foldersLoading } =
     useFoldersList(parentFolderId);
+
   const {
     data: notesData,
     fetchNextPage,
@@ -33,26 +36,62 @@ export default function FolderContents({
   );
 
   const items = useMemo<ContentItem[]>(() => {
-    const folderItems: ContentItem[] = (folders ?? []).map((f) => ({
+    const folderItems: ContentItem[] = (folders ?? []).map((folder) => ({
       type: "folder",
-      id: f.id,
-      data: f,
+      id: folder.id,
+      data: folder,
     }));
-    const noteItems: ContentItem[] = notes.map((n) => ({
+
+    const noteItems: ContentItem[] = notes.map((note) => ({
       type: "note",
-      id: n.id,
-      data: n,
+      id: note.id,
+      data: note,
     }));
-    return [...folderItems, ...noteItems];
+
+    return [
+      ...folderItems,
+      ...(noteItems.length > 0
+        ? [{ type: "notes-header", id: "notes-header" } as ContentItem]
+        : []),
+      ...noteItems,
+    ];
   }, [folders, notes]);
 
-  const renderItem = useCallback(({ item }: { item: ContentItem }) => {
-    return item.type === "folder" ? (
-      <FolderCard folder={item.data} />
-    ) : (
-      <NoteCard note={item.data} />
-    );
-  }, []);
+  const renderItem = useCallback(
+    ({ item }: { item: ContentItem }) => {
+      if (item.type === "notes-header") {
+        return (
+          <YStack marginTop="$xxl" marginBottom="$lg">
+            <H4 color="$secondary">
+              <Notebook size="$1" color="$secondary" /> Notes
+            </H4>
+          </YStack>
+        );
+      }
+
+      if (item.type === "folder") {
+        const lastFolderId = folders?.[folders.length - 1]?.id;
+        const isLastFolder = item.id === lastFolderId;
+
+        return (
+          <YStack>
+            <FolderCard folder={item.data} />
+
+            {!isLastFolder && (
+              <Separator borderColor="$paper" marginVertical="$sm" />
+            )}
+          </YStack>
+        );
+      }
+
+      return (
+        <YStack>
+          <NoteCard note={item.data} />
+        </YStack>
+      );
+    },
+    [folders],
+  );
 
   const handleEndReached = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -78,11 +117,9 @@ export default function FolderContents({
         isFetchingNextPage ? <Spinner color="$primary" /> : null
       }
       ListEmptyComponent={
-        !isLoading ? (
-          <YStack alignItems="center" paddingTop="$xxl">
-            <SizableText color="$secondary">This folder is empty</SizableText>
-          </YStack>
-        ) : null
+        <YStack alignItems="center" paddingTop="$xxl">
+          <SizableText color="$secondary">This folder is empty</SizableText>
+        </YStack>
       }
     />
   );

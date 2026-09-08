@@ -9,10 +9,18 @@ import { createNote, deleteNoteImage, uploadNoteImage } from "@/lib/notes";
 import { useLoadingOverlay } from "@/providers/loading-overlay-provider";
 import { useToast } from "@/providers/toast-provider";
 import { Camera, Upload } from "@tamagui/lucide-icons-2";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 
-export default function ExpandableAction() {
+type ExpandableActionProps = {
+  folderId?: string | null;
+};
+
+export default function ExpandableAction({
+  folderId = null,
+}: ExpandableActionProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { pickFromLibrary, pickFromCamera } = useMediaPicker();
   const { generateNotes, cancelGeneration } = useNoteGeneration();
   const { show: showLoading, hide: hideLoading } = useLoadingOverlay();
@@ -49,6 +57,7 @@ export default function ExpandableAction() {
     const { data: note, error: saveError } = await createNote(
       generationResult.data,
       uploadedUrls,
+      folderId,
     );
 
     hideLoading();
@@ -59,6 +68,11 @@ export default function ExpandableAction() {
       await Promise.all(uploadedUrls.map((url) => deleteNoteImage(url)));
       return;
     }
+
+    queryClient.invalidateQueries({
+      predicate: (query) =>
+        query.queryKey[0] === "notes" && query.queryKey[1] !== "detail",
+    });
 
     router.push(`/notes/${note.id}`);
   };

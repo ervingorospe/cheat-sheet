@@ -60,6 +60,7 @@ export default function FolderForm({
         placeholder="e.g. React Native"
         autoFocus
         returnKeyType="done"
+        maxLength={18}
       />
     </Form>
   );
