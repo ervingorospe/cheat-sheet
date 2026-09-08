@@ -40,6 +40,7 @@ export async function signInWithOAuth(provider: OAuthProvider): Promise<LoginRes
       options: {
         redirectTo,
         skipBrowserRedirect: true,
+        queryParams: getOAuthQueryParams(provider),
       },
     });
 
@@ -87,6 +88,19 @@ export async function signInWithOAuth(provider: OAuthProvider): Promise<LoginRes
     return { status: "failed", message: "Something went wrong. Please try again." };
   }
 }
+
+function getOAuthQueryParams(provider: OAuthProvider) {
+  switch (provider) {
+    case "google":
+      return {
+        prompt: "select_account",
+      };
+
+    case "facebook":
+      return undefined;
+  }
+}
+
 
 export async function signOut(): Promise<{ error: string | null }> {
   try {
