@@ -1,14 +1,67 @@
-import ImageThumbnail from "@/components/common/image-thumbnail";
+import { useSkeletonPulse } from "@/hooks/use-skeleton-pulse";
 import { ChevronLeft, ChevronRight } from "@tamagui/lucide-icons-2";
 import { Sheet } from "@tamagui/sheet";
 import { useState } from "react";
-import { Image, ImageStyle } from "react-native";
+import { Animated, Image, ImageStyle, Pressable } from "react-native";
 import { Button, SizableText, XStack, YStack } from "tamagui";
 
 type ImagesProps = {
   images: string[];
   thumbnailStyle?: ImageStyle;
 };
+
+function ImageSkeleton({ style }: { style?: ImageStyle }) {
+  const opacity = useSkeletonPulse();
+
+  return (
+    <Animated.View style={[style, { opacity }]}>
+      <YStack
+        flex={1}
+        width="100%"
+        height="100%"
+        borderRadius="$sm"
+        backgroundColor="$paperVariant"
+      />
+    </Animated.View>
+  );
+}
+
+function ImageThumbnail({
+  url,
+  thumbnailStyle,
+  onPress,
+}: {
+  url: string;
+  thumbnailStyle?: ImageStyle;
+  onPress: () => void;
+}) {
+  const [isLoading, setIsLoading] = useState(true);
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => ({
+        opacity: pressed ? 0.6 : 1,
+        position: "relative",
+      })}
+    >
+      {isLoading && <ImageSkeleton style={thumbnailStyle} />}
+
+      <Image
+        source={{ uri: url }}
+        style={[
+          thumbnailStyle,
+          {
+            position: isLoading ? "absolute" : "relative",
+            opacity: isLoading ? 0 : 1,
+          },
+        ]}
+        onLoad={() => setIsLoading(false)}
+        onError={() => setIsLoading(false)}
+      />
+    </Pressable>
+  );
+}
 
 export default function Images({ images, thumbnailStyle }: ImagesProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -46,7 +99,7 @@ export default function Images({ images, thumbnailStyle }: ImagesProps) {
           <ImageThumbnail
             key={url}
             url={url}
-            style={thumbnailStyle}
+            thumbnailStyle={thumbnailStyle}
             onPress={() => setSelectedImage(url)}
           />
         ))}
@@ -80,7 +133,6 @@ export default function Images({ images, thumbnailStyle }: ImagesProps) {
                 resizeMode="contain"
               />
 
-              {/* Previous */}
               {hasPrevious && (
                 <Button
                   position="absolute"
@@ -93,7 +145,6 @@ export default function Images({ images, thumbnailStyle }: ImagesProps) {
                 />
               )}
 
-              {/* Next */}
               {hasNext && (
                 <Button
                   position="absolute"
@@ -106,7 +157,6 @@ export default function Images({ images, thumbnailStyle }: ImagesProps) {
                 />
               )}
 
-              {/* Image counter */}
               <SizableText
                 position="absolute"
                 bottom="$md"
