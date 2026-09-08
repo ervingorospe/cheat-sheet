@@ -6,7 +6,6 @@ export default function BackButton() {
   return (
     <XStack
       alignItems="center"
-      justifyContent="center"
       pressStyle={{
         opacity: 0.6,
         scale: 0.95,

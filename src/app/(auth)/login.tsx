@@ -18,7 +18,10 @@ import SocialMediaLogin from "./components/social-media-login";
 export default function LoginScreen() {
   return (
     <Screen>
-      <BackButton />
+      <XStack marginLeft="$lg" marginTop="$lg">
+        <BackButton />
+      </XStack>
+
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
