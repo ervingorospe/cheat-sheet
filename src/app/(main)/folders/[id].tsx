@@ -104,9 +104,7 @@ export default function FolderDetailScreen() {
             </XStack>
           </Link>
 
-          <XStack marginBottom="$-5">
-            <ExpandableAction folderId={id} />
-          </XStack>
+          <ExpandableAction folderId={id} />
         </XStack>
       </YStack>
     </Screen>
