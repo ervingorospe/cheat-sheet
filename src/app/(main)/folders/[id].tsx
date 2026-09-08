@@ -7,8 +7,8 @@ import Screen from "@/components/layout/screen";
 import { SizableText } from "@/components/theme";
 import { useDeleteFolder } from "@/hooks/use-delete-folder";
 import { useFolder } from "@/hooks/use-folder";
-import { FolderPlus, Pencil, Trash2 } from "@tamagui/lucide-icons-2";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { FolderPlus, Home, Pencil, Trash2 } from "@tamagui/lucide-icons-2";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Spinner, XStack, YStack } from "tamagui";
 
@@ -92,8 +92,23 @@ export default function FolderDetailScreen() {
         />
       )}
 
-      <YStack position="absolute" bottom="$xl" right="$xl">
-        <ExpandableAction folderId={id} />
+      <YStack position="absolute" bottom="$xl" width="100%" right="$xl">
+        <XStack width="100%" justifyContent="space-between">
+          <Link href="/" asChild>
+            <XStack
+              backgroundColor="$paperVariant"
+              borderRadius={100}
+              padding={13}
+              pressStyle={{ scale: 0.9 }}
+            >
+              <Home size="$1.5" color="$secondary" />
+            </XStack>
+          </Link>
+
+          <XStack marginBottom="$-5">
+            <ExpandableAction folderId={id} />
+          </XStack>
+        </XStack>
       </YStack>
     </Screen>
   );
