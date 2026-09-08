@@ -28,6 +28,7 @@ export default function FolderSheet({
         </SizableText>
 
         <FolderForm
+          open={open}
           defaultValues={defaultValues}
           isSubmitting={isSubmitting}
           onSubmit={onSubmit}

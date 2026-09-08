@@ -11,8 +11,10 @@ import FolderListSkeleton from "./folder-card-skeleton";
 
 type ContentItem =
   | { type: "folder"; id: string; data: any }
+  | { type: "folders-empty"; id: string }
   | { type: "notes-header"; id: string }
-  | { type: "note"; id: string; data: any };
+  | { type: "note"; id: string; data: any }
+  | { type: "notes-empty"; id: string };
 
 export default function FolderContents({
   parentFolderId,
@@ -48,23 +50,65 @@ export default function FolderContents({
       data: note,
     }));
 
-    return [
-      ...folderItems,
-      ...(noteItems.length > 0
-        ? [{ type: "notes-header", id: "notes-header" } as ContentItem]
-        : []),
-      ...noteItems,
-    ];
+    const result: ContentItem[] = [];
+
+    // Folders
+    if (folderItems.length > 0) {
+      result.push(...folderItems);
+    } else if (noteItems.length > 0) {
+      result.push({
+        type: "folders-empty",
+        id: "folders-empty",
+      });
+    }
+
+    // Notes section
+    if (noteItems.length > 0) {
+      result.push({
+        type: "notes-header",
+        id: "notes-header",
+      });
+
+      result.push(...noteItems);
+    } else if (folderItems.length > 0) {
+      result.push({
+        type: "notes-header",
+        id: "notes-header",
+      });
+
+      result.push({
+        type: "notes-empty",
+        id: "notes-empty",
+      });
+    }
+
+    return result;
   }, [folders, notes]);
 
   const renderItem = useCallback(
     ({ item }: { item: ContentItem }) => {
+      if (item.type === "folders-empty") {
+        return (
+          <YStack alignItems="center">
+            <SizableText color="$secondary">No folders found</SizableText>
+          </YStack>
+        );
+      }
+
       if (item.type === "notes-header") {
         return (
           <YStack marginTop="$xxl" marginBottom="$lg">
             <H4 color="$secondary">
               <Notebook size="$1" color="$secondary" /> Notes
             </H4>
+          </YStack>
+        );
+      }
+
+      if (item.type === "notes-empty") {
+        return (
+          <YStack alignItems="center">
+            <SizableText color="$secondary">No notes found</SizableText>
           </YStack>
         );
       }
@@ -113,8 +157,13 @@ export default function FolderContents({
       renderItem={renderItem}
       onEndReached={handleEndReached}
       onEndReachedThreshold={0.5}
+      showsVerticalScrollIndicator={false}
       ListFooterComponent={
-        isFetchingNextPage ? <Spinner color="$primary" /> : null
+        isFetchingNextPage ? (
+          <YStack alignItems="center" paddingVertical="$md">
+            <Spinner color="$primary" />
+          </YStack>
+        ) : null
       }
       ListEmptyComponent={
         <YStack alignItems="center" paddingTop="$xxl">

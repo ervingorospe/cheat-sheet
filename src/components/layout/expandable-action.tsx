@@ -27,8 +27,6 @@ export default function ExpandableAction({
   const { showToast } = useToast();
 
   const generateAndSave = async (mediaItems: PickedMedia[]) => {
-    showLoading({ message: "Generating Notes...", onCancel: cancelGeneration });
-
     const [generationResult, uploadResults] = await Promise.all([
       generateNotes(mediaItems),
       Promise.all(mediaItems.map((media) => uploadNoteImage(media.uri))),
@@ -86,10 +84,18 @@ export default function ExpandableAction({
 
         if (result.error) {
           showToast(MEDIA_PICKER_ERROR_MESSAGES[result.error]);
+
           return;
         }
-        if (result.cancelled || !result.data) return;
 
+        if (result.cancelled || !result.data) {
+          return;
+        }
+
+        showLoading({
+          message: "Generating Notes...",
+          onCancel: cancelGeneration,
+        });
         await generateAndSave(result.data);
       },
     },
@@ -101,10 +107,17 @@ export default function ExpandableAction({
 
         if (result.error) {
           showToast(MEDIA_PICKER_ERROR_MESSAGES[result.error]);
+
           return;
         }
-        if (result.cancelled || !result.data) return;
+        if (result.cancelled || !result.data) {
+          return;
+        }
 
+        showLoading({
+          message: "Generating Notes...",
+          onCancel: cancelGeneration,
+        });
         await generateAndSave([result.data]);
       },
     },

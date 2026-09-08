@@ -3,23 +3,29 @@ import { Button } from "@/components/theme";
 import { FolderFormValues, folderSchema } from "@/schema/folders/folder.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, X } from "@tamagui/lucide-icons-2";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Spinner, XStack } from "tamagui";
 
 type FolderFormProps = {
+  open: boolean;
   defaultValues?: Partial<FolderFormValues>;
   isSubmitting?: boolean;
   onSubmit: (values: FolderFormValues) => void | Promise<void>;
   onCancel: () => void;
 };
 
+const capitalizeWords = (value: string) =>
+  value.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+
 export default function FolderForm({
+  open,
   defaultValues,
   isSubmitting = false,
   onSubmit,
   onCancel,
 }: FolderFormProps) {
-  const { control, handleSubmit } = useForm<FolderFormValues>({
+  const { control, handleSubmit, reset } = useForm<FolderFormValues>({
     resolver: zodResolver(folderSchema),
     defaultValues: {
       name: "",
@@ -27,6 +33,22 @@ export default function FolderForm({
     },
     mode: "onChange",
   });
+
+  useEffect(() => {
+    if (!open) {
+      reset({
+        name: "",
+        ...defaultValues,
+      });
+    }
+  }, [open, defaultValues, reset]);
+
+  const handleFolderSubmit = (values: FolderFormValues) => {
+    onSubmit({
+      ...values,
+      name: capitalizeWords(values.name.trim()),
+    });
+  };
 
   return (
     <Form
@@ -44,7 +66,7 @@ export default function FolderForm({
 
           <Button
             icon={isSubmitting ? <Spinner size="small" /> : <Check size="$1" />}
-            onPress={handleSubmit(onSubmit)}
+            onPress={handleSubmit(handleFolderSubmit)}
             opacity={isSubmitting ? 0.5 : 1}
             disabled={isSubmitting}
           >
