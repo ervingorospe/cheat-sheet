@@ -8,19 +8,3 @@ export default function LibraryScreen() {
     </Screen>
   );
 }
-
-/**
-import Screen from "@/components/layout/screen";
-import NotesList from "@/components/notes/notes-list";
-import { useLocalSearchParams } from "expo-router";
-
-export default function FolderScreen() {
-  const { folderId } = useLocalSearchParams<{ folderId: string }>();
-
-  return (
-    <Screen>
-      <NotesList folderId={folderId} emptyMessage="This folder is empty" />
-    </Screen>
-  );
-}
- */

@@ -7,6 +7,7 @@ import { Notebook } from "@tamagui/lucide-icons-2";
 import { useCallback, useMemo } from "react";
 import { FlatList } from "react-native";
 import { Separator, Spinner, YStack } from "tamagui";
+import NoteSearchTrigger from "../notes/note-search-trigger";
 import FolderListSkeleton from "./folder-card-skeleton";
 
 type ContentItem =
@@ -97,10 +98,13 @@ export default function FolderContents({
 
       if (item.type === "notes-header") {
         return (
-          <YStack marginTop="$xxl" marginBottom="$lg">
+          <YStack marginTop="$xxl">
             <H4 color="$secondary">
               <Notebook size="$1" color="$secondary" /> Notes
             </H4>
+            <YStack flex={1} marginTop="$md">
+              <NoteSearchTrigger />
+            </YStack>
           </YStack>
         );
       }
@@ -151,7 +155,7 @@ export default function FolderContents({
 
   return (
     <FlatList
-      style={{ paddingVertical: 20 }}
+      style={{ paddingBottom: 20 }}
       data={items}
       keyExtractor={(item) => `${item.type}-${item.id}`}
       renderItem={renderItem}

@@ -322,3 +322,30 @@ export async function moveNote(id: string, folderId: string | null): Promise<{ d
     return { data: null, error: "Something went wrong. Please try again." };
   }
 }
+
+function escapeIlikePattern(value: string): string {
+  return value.replace(/[%_]/g, (char) => `\\${char}`);
+}
+
+export async function searchNotes(query: string): Promise<NoteListItem[]> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from(TABLES.NOTES)
+    .select("id, title, content, created_at, folder_id")
+    .eq("user_id", user.id)
+    .ilike("title", `%${escapeIlikePattern(query)}%`)
+    .order("created_at", { ascending: false })
+    .limit(30);
+
+  if (error) {
+    console.error("Failed to search notes:", error);
+    return [];
+  }
+
+  return data ?? [];
+}

@@ -1,5 +1,6 @@
 import NoteCard from "@/components/notes/note-card";
 import NoteCardSkeleton from "@/components/notes/note-card-skeleton";
+import NoteSearchTrigger from "@/components/notes/note-search-trigger";
 import { SizableText } from "@/components/theme";
 import { useNotesList } from "@/hooks/use-notes-list";
 import { NoteListItem } from "@/lib/notes";
@@ -40,6 +41,7 @@ export default function NotesList({
   if (isLoading) {
     return (
       <YStack paddingVertical="$lg">
+        <NoteSearchTrigger />
         {Array.from({ length: 3 }).map((_, index) => (
           <NoteCardSkeleton key={index} />
         ))}
@@ -54,6 +56,7 @@ export default function NotesList({
       renderItem={renderItem}
       onEndReached={handleEndReached}
       onEndReachedThreshold={0.5}
+      ListHeaderComponent={<NoteSearchTrigger />}
       ListFooterComponent={
         isFetchingNextPage ? <Spinner color="$primary" /> : null
       }

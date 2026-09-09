@@ -68,7 +68,8 @@ export default function FolderDetailScreen() {
           </Button>
         </XStack>
       </XStack>
-      <XStack marginTop="$md">
+
+      <XStack marginTop="$md" paddingBottom="$md">
         <SizableText fontSize="$6" fontWeight="600" numberOfLines={1}>
           {folder?.name ?? "Folder"}
         </SizableText>
