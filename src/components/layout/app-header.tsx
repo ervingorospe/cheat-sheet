@@ -1,4 +1,3 @@
-import AppAvatar from "@/components/common/avatar";
 import BackButton from "@/components/common/back-button";
 import GradientLinear from "@/components/common/gradient-linear";
 import { SizableText } from "@/components/theme";
@@ -53,8 +52,6 @@ export default function AppHeader({
             </GradientLinear>
           </XStack>
         </YStack>
-
-        <AppAvatar user={user} link="/profile" />
       </XStack>
     </XStack>
   );

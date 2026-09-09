@@ -6,13 +6,20 @@ import { Avatar, GetProps } from "tamagui";
 
 type AvatarProps = {
   user: Parameters<typeof getUserName>[0];
+  avatarUrl?: string | null;
   link?: Href;
   size?: GetProps<typeof Avatar>["size"];
 };
 
-export default function AppAvatar({ user, link, size }: AvatarProps) {
+export default function AppAvatar({
+  user,
+  avatarUrl: avatarUrlOverride,
+  link,
+  size,
+}: AvatarProps) {
   const name = getUserName(user);
-  const avatarUrl = getUserAvatar(user);
+  const avatarUrl =
+    avatarUrlOverride !== undefined ? avatarUrlOverride : getUserAvatar(user);
   const initials = getUserInitials(name);
 
   if (!link) {

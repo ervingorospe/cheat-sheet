@@ -37,9 +37,9 @@ export default function SheetModal({
         exitStyle={{ opacity: 0 }}
       />
 
-      <Sheet.Handle backgroundColor="$paper" />
+      <Sheet.Handle backgroundColor="$paperVariant" />
 
-      <Sheet.Frame flex={1} backgroundColor="$paper" borderRadius={20}>
+      <Sheet.Frame flex={1} backgroundColor="$paperVariant" borderRadius={20}>
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : undefined}

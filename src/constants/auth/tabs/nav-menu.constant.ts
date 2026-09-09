@@ -1,5 +1,5 @@
 import { NavIcon } from "@/types/tabs/nav-icon.type";
-import { Folder, Home, Library, Settings } from "@tamagui/lucide-icons-2";
+import { Folder, Home, Library, User2 } from "@tamagui/lucide-icons-2";
 
 export const leftIcons: NavIcon[] = [
   {
@@ -24,9 +24,9 @@ export const rightIcons: NavIcon[] = [
     activePath: "/folder",
   },
   {
-    id: "settings",
-    icon: Settings,
-    path: "/(tabs)/settings",
+    id: "profile",
+    icon: User2,
+    path: "/(main)/profile",
     activePath: "/settings",
   },
 ];

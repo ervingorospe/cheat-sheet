@@ -14,7 +14,7 @@ export default function BackButton() {
       marginRight="$2"
       onPress={() => router.back()}
     >
-      <ArrowLeft size="$1" color="$primary" />
+      <ArrowLeft size="$2" color="$primary" />
     </XStack>
   );
 }

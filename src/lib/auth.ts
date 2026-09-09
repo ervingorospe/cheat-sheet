@@ -2,6 +2,7 @@ import { fetchProfile } from "@/lib/profile";
 import { supabase } from "@/lib/supabase";
 import { LoginRequest, LoginResponse } from "@/types/auth/login.type";
 import { SignUpRequest } from "@/types/auth/signup.type";
+import { User } from "@supabase/supabase-js";
 import * as QueryParams from "expo-auth-session/build/QueryParams";
 import * as WebBrowser from "expo-web-browser";
 import { setRememberMe } from "./remember-me";
@@ -152,5 +153,24 @@ export async function signUpWithPassword(data: SignUpRequest): Promise<LoginResp
   } catch (error) {
     console.error("Unexpected error during sign-up:", error);
     return { status: "failed", message: "Something went wrong. Please try again." };
+  }
+}
+
+export function hasPasswordAuth(user: User | null): boolean {
+  return user?.app_metadata?.provider === "email";
+}
+
+export async function updatePassword(newPassword: string): Promise<{ error: string | null }> {
+  try {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    return { error: null };
+  } catch (error) {
+    console.error("Unexpected error updating password:", error);
+    return { error: "Something went wrong. Please try again." };
   }
 }
