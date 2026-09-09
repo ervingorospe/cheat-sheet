@@ -26,7 +26,10 @@ export default function LandingScreen() {
         </AppTextStack>
 
         <AppButtonGroup width={250} alignItems="center">
-          <Button width="100%">Create An Account</Button>
+          <Link href="/(auth)/sign-up" asChild>
+            <Button width="100%">Create An Account</Button>
+          </Link>
+
           <Link href="/(auth)/login" asChild>
             <Button width="100%" variant="outline">
               Login

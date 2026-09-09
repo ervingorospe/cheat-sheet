@@ -36,7 +36,7 @@ export default function LoginScreen() {
             paddingTop: 50,
           }}
         >
-          <AppSection flex={1} marginHorizontal={50} paddingVertical="$xl">
+          <AppSection flex={1} marginHorizontal={20} paddingVertical="$xl">
             <AppTextStack>
               <H2>Welcome Back!</H2>
 

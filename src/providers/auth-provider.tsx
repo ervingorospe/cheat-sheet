@@ -1,9 +1,16 @@
-import { signInWithOAuth, signInWithPassword, signOut } from "@/lib/auth";
+import {
+  signInWithOAuth,
+  signInWithPassword,
+  signOut,
+  signUpWithPassword,
+} from "@/lib/auth";
 import { fetchProfile } from "@/lib/profile";
+import { getRememberMe } from "@/lib/remember-me";
 import { supabase } from "@/lib/supabase";
 import { useLoadingOverlay } from "@/providers/loading-overlay-provider";
 import { LoginRequest, LoginResponse } from "@/types/auth/login.type";
 import { Profile } from "@/types/auth/profile.type";
+import { SignUpRequest } from "@/types/auth/signup.type";
 import { Session } from "@supabase/supabase-js";
 import * as WebBrowser from "expo-web-browser";
 import {
@@ -25,6 +32,7 @@ type AuthContextValue = {
   session: Session | null;
   profile: Profile | null;
   login: (data: LoginRequest) => Promise<LoginResponse>;
+  signUp: (data: SignUpRequest) => Promise<LoginResponse>;
   loginWithOAuth: (provider: OAuthProvider) => Promise<LoginResponse>;
   logout: () => Promise<{ error: string | null }>;
   isLoading: boolean;
@@ -41,6 +49,16 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
+      const rememberMe = await getRememberMe();
+
+      if (data.session && !rememberMe) {
+        await supabase.auth.signOut();
+        setSession(null);
+        setProfile(null);
+        setIsLoading(false);
+        return;
+      }
+
       setSession(data.session);
 
       if (data.session?.user.id) {
@@ -84,6 +102,21 @@ export function AuthProvider({ children }: PropsWithChildren) {
     [showLoading, hideLoading],
   );
 
+  const signUp = useCallback(
+    async (data: SignUpRequest): Promise<LoginResponse> => {
+      setIsLoading(true);
+      showLoading({ message: "Creating your account..." });
+
+      try {
+        return await signUpWithPassword(data);
+      } finally {
+        setIsLoading(false);
+        hideLoading();
+      }
+    },
+    [showLoading, hideLoading],
+  );
+
   const loginWithOAuth = useCallback(
     async (provider: OAuthProvider): Promise<LoginResponse> => {
       setIsLoading(true);
@@ -115,11 +148,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
       session,
       profile,
       login,
+      signUp,
       loginWithOAuth,
       logout,
       isLoading,
     }),
-    [session, profile, login, loginWithOAuth, logout, isLoading],
+    [session, profile, login, signUp, loginWithOAuth, logout, isLoading],
   );
 
   return (

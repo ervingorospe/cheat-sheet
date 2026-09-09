@@ -1,8 +1,10 @@
 import { fetchProfile } from "@/lib/profile";
 import { supabase } from "@/lib/supabase";
 import { LoginRequest, LoginResponse } from "@/types/auth/login.type";
+import { SignUpRequest } from "@/types/auth/signup.type";
 import * as QueryParams from "expo-auth-session/build/QueryParams";
 import * as WebBrowser from "expo-web-browser";
+import { setRememberMe } from "./remember-me";
 
 const redirectTo = "cheatlibrary://auth/callback";
 
@@ -25,6 +27,8 @@ export async function signInWithPassword(data: LoginRequest): Promise<LoginRespo
       await supabase.auth.signOut();
       return { status: "failed", message: "This account has been deactivated." };
     }
+
+    await setRememberMe(data.rememberMe ?? true);
 
     return { status: "success", message: "" };
   } catch (error) {
@@ -114,5 +118,39 @@ export async function signOut(): Promise<{ error: string | null }> {
   } catch (error) {
     console.error("Unexpected error during sign-out:", error);
     return { error: "Something went wrong. Please try again." };
+  }
+}
+
+
+export async function signUpWithPassword(data: SignUpRequest): Promise<LoginResponse> {
+  try {
+    const { data: authData, error } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        data: {
+          first_name: data.firstName,
+          last_name: data.lastName,
+        },
+      },
+    });
+
+    if (error) {
+      return { status: "failed", message: error.message };
+    }
+
+    if (!authData.session) {
+      return {
+        status: "success",
+        message: "Check your email to confirm your account before logging in.",
+      };
+    }
+
+    await setRememberMe(true);
+
+    return { status: "success", message: "" };
+  } catch (error) {
+    console.error("Unexpected error during sign-up:", error);
+    return { status: "failed", message: "Something went wrong. Please try again." };
   }
 }

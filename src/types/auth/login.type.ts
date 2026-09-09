@@ -3,6 +3,7 @@ import { Mail } from "@tamagui/lucide-icons-2";
 export type LoginRequest = {
   email: string;
   password: string;
+  rememberMe?: boolean;
 };
 
 export type LoginResponse = {

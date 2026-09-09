@@ -1,24 +1,63 @@
-import Logo from "@/assets/icons/logo.svg";
 import BackButton from "@/components/common/back-button";
-import GradientLinear from "@/components/common/gradient-linear";
-import { AppSection, AppTextStack, H1, Paragraph } from "@/components/theme";
+import {
+  AppList,
+  AppSection,
+  AppTextStack,
+  Button,
+  H2,
+  Paragraph,
+} from "@/components/theme";
+import { Link } from "expo-router";
+import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { Strong, XStack } from "tamagui";
 import Screen from "./components/screen";
+import SignUpForm from "./components/signup-form";
 
 export default function SignUp() {
   return (
     <Screen>
-      <BackButton />
-      <AppSection f={1} justifyContent="center" alignItems="center">
-        <AppTextStack alignItems="center">
-          <GradientLinear>
-            <H1 fontWeight="700">Sign up</H1>
-          </GradientLinear>
+      <XStack marginLeft="$lg" marginTop="$lg">
+        <BackButton />
+      </XStack>
 
-          <Paragraph>Ultimate references guides at your fingertipss</Paragraph>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: 20,
+            paddingTop: 50,
+          }}
+        >
+          <AppSection flex={1} marginHorizontal={20} paddingVertical="$xl">
+            <AppTextStack>
+              <H2>Create Account</H2>
 
-          <Logo width={45} height={45} />
-        </AppTextStack>
-      </AppSection>
+              <Paragraph>
+                Signup and start creating your study vaults.
+              </Paragraph>
+            </AppTextStack>
+
+            <AppList>
+              <SignUpForm />
+            </AppList>
+          </AppSection>
+
+          <XStack marginTop="auto" alignItems="center" justifyContent="center">
+            <Paragraph marginRight={4}>Already have an account?</Paragraph>
+            <Link href="/(auth)/login" asChild>
+              <Button variant="text">
+                <Strong color="$primary">Login</Strong>
+              </Button>
+            </Link>
+          </XStack>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </Screen>
   );
 }
