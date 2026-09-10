@@ -349,3 +349,45 @@ export async function searchNotes(query: string): Promise<NoteListItem[]> {
 
   return data ?? [];
 }
+
+export async function getNotesCount(): Promise<number> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return 0;
+
+  const { count, error } = await supabase
+    .from(TABLES.NOTES)
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("Failed to count notes:", error);
+    return 0;
+  }
+
+  return count ?? 0;
+}
+
+export async function fetchRecentNotes(limit: number): Promise<NoteListItem[]> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from(TABLES.NOTES)
+    .select("id, title, content, created_at, folder_id")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("Failed to fetch recent notes:", error);
+    return [];
+  }
+
+  return data ?? [];
+}
