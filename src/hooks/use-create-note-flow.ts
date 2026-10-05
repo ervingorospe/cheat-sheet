@@ -61,7 +61,8 @@ export function useCreateNoteFlow(folderId: string | null = null) {
 
     queryClient.invalidateQueries({
       predicate: (query) =>
-        query.queryKey[0] === "notes" && query.queryKey[1] !== "detail",
+        (query.queryKey[0] === "notes" && query.queryKey[1] !== "detail") ||
+          query.queryKey[0] === "home",
     });
 
     router.push(`/notes/${note.id}`);

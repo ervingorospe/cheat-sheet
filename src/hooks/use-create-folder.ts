@@ -10,6 +10,7 @@ export function useCreateFolder() {
     onSuccess: (result, variables) => {
       if (result.data) {
         queryClient.invalidateQueries({ queryKey: ["folders", variables.parentFolderId ?? "root"] });
+        queryClient.invalidateQueries({ queryKey: ["home"] });
       }
     },
   });

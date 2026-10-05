@@ -60,7 +60,8 @@ export default function NoteDetailScreen() {
       queryClient.setQueryData(["notes", "detail", id], result.data);
       queryClient.invalidateQueries({
         predicate: (query) =>
-          query.queryKey[0] === "notes" && query.queryKey[1] !== "detail",
+          (query.queryKey[0] === "notes" && query.queryKey[1] !== "detail") ||
+          query.queryKey[0] === "home",
       });
       showToast("Saved.", "success");
       setIsEditing(false);
@@ -78,7 +79,8 @@ export default function NoteDetailScreen() {
 
       queryClient.invalidateQueries({
         predicate: (query) =>
-          query.queryKey[0] === "notes" && query.queryKey[1] !== "detail",
+          (query.queryKey[0] === "notes" && query.queryKey[1] !== "detail") ||
+          query.queryKey[0] === "home",
       });
 
       router.back();

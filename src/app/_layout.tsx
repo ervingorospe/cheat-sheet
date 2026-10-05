@@ -3,10 +3,14 @@ import useAppFonts from "@/hooks/use-app-fonts";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { LoadingOverlayProvider } from "@/providers/loading-overlay-provider";
 import { ToastProvider } from "@/providers/toast-provider";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -18,8 +22,19 @@ const queryClient = new QueryClient();
 SplashScreen.preventAutoHideAsync();
 
 function AppNavigator() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, session } = useAuth();
   const theme = useTheme();
+  const queryClient = useQueryClient();
+  const userId = session?.user.id ?? null;
+  const previousUserId = useRef(userId);
+
+  // Cached queries are not keyed by user, so drop them when the account changes.
+  useEffect(() => {
+    if (previousUserId.current !== userId) {
+      previousUserId.current = userId;
+      queryClient.clear();
+    }
+  }, [userId, queryClient]);
 
   if (isLoading) {
     return <LoadingOverlay visible />;

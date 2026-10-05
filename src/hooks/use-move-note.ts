@@ -10,7 +10,8 @@ export function useMoveNote() {
       if (result.data) {
         queryClient.setQueryData(["notes", "detail", variables.id], result.data);
         queryClient.invalidateQueries({
-          predicate: (query) => query.queryKey[0] === "notes" && query.queryKey[1] !== "detail",
+          predicate: (query) => (query.queryKey[0] === "notes" && query.queryKey[1] !== "detail") ||
+          query.queryKey[0] === "home",
         });
       }
     },

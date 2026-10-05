@@ -31,7 +31,8 @@ function NoteCard({ note }: NoteCardProps) {
 
       queryClient.invalidateQueries({
         predicate: (query) =>
-          query.queryKey[0] === "notes" && query.queryKey[1] !== "detail",
+          (query.queryKey[0] === "notes" && query.queryKey[1] !== "detail") ||
+          query.queryKey[0] === "home",
       });
 
       router.back();

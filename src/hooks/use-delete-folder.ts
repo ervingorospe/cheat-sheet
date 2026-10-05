@@ -35,7 +35,7 @@ export function useDeleteFolder(folderId: string, { onDeleted }: UseDeleteFolder
 
       queryClient.removeQueries({ queryKey: ["folders", "detail", folderId] });
       queryClient.invalidateQueries({
-        predicate: (query) => query.queryKey[0] === "folders" || query.queryKey[0] === "notes",
+        predicate: (query) => ["folders", "notes", "home"].includes(query.queryKey[0] as string),
       });
 
       onDeleted();
