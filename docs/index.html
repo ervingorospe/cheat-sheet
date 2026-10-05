@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Cheat Library — App Documentation</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
+    <style>
+      :root {
+        --bg: #f6f7fa; --surface: #ffffff; --fg: #1a2230; --fg-muted: #5c6678; --fg-faint: #8891a0;
+        --border: #dde2ea; --accent: #3454d1; --accent-soft: #e8ecfb; --mono-surface: #eef1f6;
+        --good: #1a7f4e; --good-soft: #e3f5ec; --warn: #a15c07; --warn-soft: #fdf0dc;
+        --shadow: 0 1px 2px rgba(20,28,46,.04), 0 8px 24px rgba(20,28,46,.05);
+        color-scheme: light;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #10141c; --surface: #161b25; --fg: #e7eaf0; --fg-muted: #9aa4b5; --fg-faint: #6b7585;
+          --border: #2a3140; --accent: #7c93ff; --accent-soft: #212a47; --mono-surface: #1c2230;
+          --good: #4fd394; --good-soft: #163227; --warn: #f0b45a; --warn-soft: #3a2c14;
+          --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+          color-scheme: dark;
+        }
+      }
+      :root[data-theme="dark"] {
+        --bg: #10141c; --surface: #161b25; --fg: #e7eaf0; --fg-muted: #9aa4b5; --fg-faint: #6b7585;
+        --border: #2a3140; --accent: #7c93ff; --accent-soft: #212a47; --mono-surface: #1c2230;
+        --good: #4fd394; --good-soft: #163227; --warn: #f0b45a; --warn-soft: #3a2c14;
+        --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+        color-scheme: dark;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; }
+      html { scroll-behavior: smooth; scroll-padding-top: 64px; }
+      body { background: var(--bg); color: var(--fg); font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; padding-inline: 16px; line-height: 1.55; }
+      h1, h2, h3 { font-weight: 600; text-wrap: balance; letter-spacing: -0.01em; }
+      code, .mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+      code { font-size: .88em; background: var(--mono-surface); padding: 1px 5px; border-radius: 4px; }
+      a { color: var(--accent); }
+      .page { max-width: 840px; margin: 0 auto; padding-bottom: 64px; }
+      header.hero { padding-block: 28px 20px; }
+      .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+      h1.title { font-size: clamp(26px, 5vw, 34px); margin: 6px 0 8px; }
+      .subtitle { color: var(--fg-muted); font-size: 15px; max-width: 60ch; }
+      nav.pillnav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; display: flex; gap: 6px; overflow-x: auto; padding: 8px 0 12px; margin-bottom: 8px; background: var(--bg); border-bottom: 1px solid var(--border); }
+      nav.pillnav a { flex: 0 0 auto; font-size: 12.5px; font-weight: 600; color: var(--fg-muted); text-decoration: none; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); white-space: nowrap; }
+      nav.pillnav a:hover { color: var(--accent); border-color: var(--accent); }
+      section { padding-block: 28px; border-bottom: 1px solid var(--border); }
+      section:last-of-type { border-bottom: none; }
+      h2.section-title { font-size: 20px; display: flex; align-items: baseline; gap: 10px; margin: 0 0 4px; }
+      h2.section-title .num { font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--accent); font-weight: 600; }
+      .section-sub { color: var(--fg-muted); font-size: 13.5px; margin: 0 0 18px; }
+      .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      @media (max-width: 560px) { .grid-2 { grid-template-columns: 1fr; } }
+      .feature { border: 1px solid var(--border); background: var(--surface); border-radius: 10px; padding: 14px 16px; }
+      .feature h3 { font-size: 14px; margin: 0 0 4px; display: flex; align-items: center; gap: 8px; }
+      .feature h3 .dot { width: 7px; height: 7px; border-radius: 999px; background: var(--accent); flex: none; }
+      .feature p { font-size: 13px; color: var(--fg-muted); margin: 0; }
+      table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+      th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+      th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--fg-faint); font-weight: 600; }
+      td.mono-cell { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; color: var(--accent); }
+      .table-wrap { overflow-x: auto; }
+      .pill { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+      .pill.good { background: var(--good-soft); color: var(--good); }
+      .pill.warn { background: var(--warn-soft); color: var(--warn); }
+      .diagram-frame { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; overflow-x: auto; box-shadow: var(--shadow); }
+      .diagram-caption { font-size: 12.5px; color: var(--fg-faint); margin-top: 8px; }
+      .diagram-frame .mermaid { display: flex; justify-content: center; margin: 0; }
+      .diagram-frame svg { max-width: 100%; }
+      .flow-block { margin-top: 26px; }
+      .flow-block:first-of-type { margin-top: 0; }
+      .flow-title { font-size: 15px; font-weight: 600; margin: 0 0 4px; display: flex; align-items: center; gap: 8px; }
+      .flow-title .step { font-family: "IBM Plex Mono", monospace; font-size: 11px; background: var(--mono-surface); color: var(--fg-muted); padding: 2px 7px; border-radius: 6px; }
+      .flow-desc { font-size: 13px; color: var(--fg-muted); margin: 0 0 10px; max-width: 68ch; }
+      ul.compact { margin: 6px 0 0; padding-left: 20px; font-size: 13.5px; color: var(--fg-muted); }
+      ul.compact li { margin-bottom: 3px; }
+      pre.code { background: var(--mono-surface); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font-size: 12.5px; margin: 0 0 12px; }
+      pre.code code { background: none; padding: 0; }
+      footer.page-footer { padding-top: 28px; font-size: 12px; color: var(--fg-faint); }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div class="eyebrow">App Documentation</div>
+        <h1 class="title">Cheat Library — AI Study Notes</h1>
+        <p class="subtitle">
+          A mobile app (Expo + React Native) that turns screenshots and photos into
+          structured study notes with Gemini, organized in nested folders and backed
+          by Supabase. This page covers what it does, its data model, and its core flows.
+          Written from the current code and migrations — re-check it if they change.
+        </p>
+      </header>
+
+      <nav class="pillnav">
+        <a href="#summary">Summary</a>
+        <a href="#stack">Tech Stack</a>
+        <a href="#structure">Structure</a>
+        <a href="#erd">Data Model (ERD)</a>
+        <a href="#flows">Core Flows</a>
+        <a href="#setup">Setup</a>
+        <a href="#roadmap">Roadmap</a>
+      </nav>
+
+      <section id="summary">
+        <h2 class="section-title"><span class="num">01</span> What the app does</h2>
+        <p class="section-sub">Snap or pick images, get notes back, keep them organized and searchable. Every row is private to its owner.</p>
+        <div class="grid-2">
+          <div class="feature"><h3><span class="dot"></span>AI note generation</h3><p>One or more images become a title, summary, key points and a suggested documentation topic.</p></div>
+          <div class="feature"><h3><span class="dot"></span>Editable notes</h3><p>Edit title, content, key points, documentation links and image links. Paginated list with skeleton loading.</p></div>
+          <div class="feature"><h3><span class="dot"></span>Nested folders</h3><p>Folders inside folders, with cycle prevention in the database. Deleting shows how many folders and notes are affected first.</p></div>
+          <div class="feature"><h3><span class="dot"></span>Search</h3><p>Debounced search across notes, plus a home screen with stats, quick actions and recent notes.</p></div>
+          <div class="feature"><h3><span class="dot"></span>Auth</h3><p>Email/password with “remember me”, plus Google and Facebook OAuth. Routes are guarded by session.</p></div>
+          <div class="feature"><h3><span class="dot"></span>Profile</h3><p>Edit name, upload an avatar, and change password (only for accounts that use password auth).</p></div>
+        </div>
+      </section>
+
+      <section id="stack">
+        <h2 class="section-title"><span class="num">02</span> Tech stack</h2>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Layer</th><th>Choice</th><th>Notes</th></tr>
+            <tr><td>Framework</td><td class="mono-cell">Expo SDK 57 · RN 0.86</td><td>React 19, Expo Router (file-based). Check the v57 docs before changing Expo code.</td></tr>
+            <tr><td>UI</td><td class="mono-cell">Tamagui</td><td>Reanimated, glass effect, Lucide icons, dark theme</td></tr>
+            <tr><td>Data fetching</td><td class="mono-cell">TanStack Query</td><td>Hooks wrap lib functions; mutations invalidate queries</td></tr>
+            <tr><td>Forms</td><td class="mono-cell">react-hook-form + Zod</td><td>Schemas in <code>src/schema</code></td></tr>
+            <tr><td>Backend</td><td class="mono-cell">Supabase</td><td>Auth, Postgres with RLS, Storage, Edge Functions</td></tr>
+            <tr><td>AI</td><td class="mono-cell">Google Gemini</td><td>Called only from the <code>generate-notes</code> edge function (Deno)</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <section id="structure">
+        <h2 class="section-title"><span class="num">03</span> Structure &amp; navigation</h2>
+        <p class="section-sub">
+          The root layout uses <span class="pill">Stack.Protected</span>: signed-out users see only <code>(auth)</code>;
+          signed-in users see <code>(tabs)</code> and <code>(main)</code>. Data access flows
+          <code>screen → component → hook → lib → Supabase</code>.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Route / path</th><th>Purpose</th></tr>
+            <tr><td class="mono-cell">(auth)/landing · login · sign-up · forgot-password</td><td>Signed-out entry points</td></tr>
+            <tr><td class="mono-cell">(tabs)/index · library · folder</td><td>Home, all notes, top-level folders (custom tab bar)</td></tr>
+            <tr><td class="mono-cell">(main)/notes/[id]</td><td>Note view and edit</td></tr>
+            <tr><td class="mono-cell">(main)/folders/[id]</td><td>Folder contents (subfolders and notes)</td></tr>
+            <tr><td class="mono-cell">(main)/search · profile</td><td>Search and account settings</td></tr>
+            <tr><td class="mono-cell">src/lib</td><td>Supabase calls: notes, folders, auth, profile, image</td></tr>
+            <tr><td class="mono-cell">src/hooks</td><td>React Query hooks and flows such as <code>use-create-note-flow</code></td></tr>
+            <tr><td class="mono-cell">src/providers</td><td>Auth, toast, loading overlay, header height</td></tr>
+            <tr><td class="mono-cell">supabase/</td><td>Migrations and the edge function</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <section id="erd">
+        <h2 class="section-title"><span class="num">04</span> Data model (ERD)</h2>
+        <p class="section-sub">From <code>supabase/migrations</code>. All three public tables have RLS: users can only touch rows where their id matches.</p>
+        <div class="diagram-frame">
+          <pre class="mermaid">
+erDiagram
+    AUTH_USERS {
+        uuid id PK
+        string email
+    }
+    PROFILES {
+        uuid id PK
+        string email
+        string first_name
+        string last_name
+        string avatar_url
+        bool is_active
+    }
+    FOLDERS {
+        uuid id PK
+        uuid user_id FK
+        uuid parent_folder_id FK
+        string name
+    }
+    NOTES {
+        uuid id PK
+        uuid user_id FK
+        uuid folder_id FK
+        string title
+        string content
+        jsonb key_points
+        jsonb doc_links
+        jsonb image_links
+    }
+    AUTH_USERS ||--|| PROFILES : "trigger creates"
+    AUTH_USERS ||--o{ FOLDERS : owns
+    AUTH_USERS ||--o{ NOTES : owns
+    FOLDERS ||--o{ FOLDERS : "parent of"
+    FOLDERS ||--o{ NOTES : contains
+</pre>
+        </div>
+        <p class="diagram-caption">
+          Deletes: user → profile, folders, notes cascade. Deleting a folder cascades to subfolders, but notes
+          get <code>folder_id = null</code> (set null). Storage buckets <code>note-images</code> and
+          <code>avatars</code> are not cascaded and must be cleaned separately.
+        </p>
+        <div class="table-wrap" style="margin-top: 14px">
+          <table>
+            <tr><th>Object</th><th>What it does</th></tr>
+            <tr><td class="mono-cell">handle_new_user</td><td>Creates a profile on every new auth user (password or OAuth), splitting <code>full_name</code></td></tr>
+            <tr><td class="mono-cell">prevent_folder_cycle</td><td>Rejects self-parenting and moves that would create a loop</td></tr>
+            <tr><td class="mono-cell">get_descendant_folder_ids()</td><td>Recursive query returning a folder and all descendants</td></tr>
+            <tr><td class="mono-cell">set_updated_at</td><td>Keeps <code>updated_at</code> current on every table</td></tr>
+            <tr><td class="mono-cell">idx_notes_user_folder · idx_folders_user_parent</td><td>Indexes for the common list queries</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <section id="flows">
+        <h2 class="section-title"><span class="num">05</span> Core flows</h2>
+        <p class="section-sub">The journeys that define how the app is used.</p>
+
+        <div class="flow-block">
+          <div class="flow-title"><span class="step">Flow 1</span> Sign-in &amp; route guard</div>
+          <p class="flow-desc">Password and OAuth both end in a Supabase session; the guard then swaps the visible route groups. The profile row is created by a database trigger, not by the app.</p>
+          <div class="diagram-frame">
+            <pre class="mermaid">
+flowchart TD
+    A["App launch"] --> B["AuthProvider restores session"]
+    B --> C{"Session?"}
+    C -- No --> D["(auth) screens"]
+    C -- Yes --> E["(tabs) + (main) screens"]
+    D --> F{"Method"}
+    F -- "Email + password" --> G["signInWithPassword<br/>(remember-me preference stored)"]
+    F -- "Sign up" --> H["signUpWithPassword"]
+    F -- "Google / Facebook" --> I["signInWithOAuth<br/>(expo-auth-session)"]
+    H --> J[("auth.users row")]
+    I --> J
+    J --> K["Trigger handle_new_user<br/>creates profiles row"]
+    G --> L["Session set"]
+    K --> L
+    L --> E
+</pre>
+          </div>
+        </div>
+
+        <div class="flow-block">
+          <div class="flow-title"><span class="step">Flow 2</span> AI note generation</div>
+          <p class="flow-desc">Generation and image upload run in parallel. If the user cancels or either side fails, uploaded images are deleted so nothing is orphaned.</p>
+          <div class="diagram-frame">
+            <pre class="mermaid">
+flowchart TD
+    A["Pick from library or camera"] --> B["useCreateNoteFlow"]
+    B --> C["generate-notes edge function<br/>(base64 + mimeType items)"]
+    B --> D["uploadNoteImage<br/>to note-images bucket"]
+    C --> E["Gemini returns title, summary,<br/>keyPoints, suggestedTopic"]
+    E --> F{"Cancelled or<br/>failed?"}
+    D --> F
+    F -- Yes --> G["Delete uploaded images<br/>+ toast error"]
+    F -- No --> H["createNote<br/>(optionally in a folder)"]
+    H --> I{"Saved?"}
+    I -- No --> G
+    I -- Yes --> J["Open note detail"]
+</pre>
+          </div>
+        </div>
+
+        <div class="flow-block">
+          <div class="flow-title"><span class="step">Flow 3</span> Folder management</div>
+          <p class="flow-desc">Moves are validated in the database, so the client cannot create a cycle even by accident. Delete always shows its impact first.</p>
+          <div class="diagram-frame">
+            <pre class="mermaid">
+flowchart TD
+    A["Create folder<br/>(name, optional parent)"] --> B[("folders row")]
+    B --> C["Rename"]
+    B --> D["Move folder"]
+    D --> E{"Trigger<br/>prevent_folder_cycle"}
+    E -- "Own parent or descendant" --> F["Error returned"]
+    E -- OK --> G["Parent updated"]
+    B --> H["Delete"]
+    H --> I["getFolderDeleteImpact<br/>(folder + note counts)"]
+    I --> J{"User confirms?"}
+    J -- No --> K["Cancel"]
+    J -- Yes --> L["Subfolders cascade;<br/>notes get folder_id = null"]
+</pre>
+          </div>
+        </div>
+
+        <div class="flow-block">
+          <div class="flow-title"><span class="step">Flow 4</span> Note edit, move &amp; delete</div>
+          <p class="flow-desc">All edits go through <code>updateNote</code>; deleting a note also removes its stored images.</p>
+          <div class="diagram-frame">
+            <pre class="mermaid">
+flowchart TD
+    A["Open note"] --> B{"Action"}
+    B -- Edit --> C["Change title, content, key points,<br/>doc links, image links"]
+    C --> D["updateNote"]
+    B -- Move --> E["moveNote to folder<br/>or to root"]
+    B -- Delete --> F["deleteNote"]
+    F --> G["Remove images<br/>from note-images"]
+    D --> H["Invalidate queries,<br/>lists refresh"]
+    E --> H
+    G --> H
+</pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="setup">
+        <h2 class="section-title"><span class="num">06</span> Setup &amp; deployment</h2>
+        <pre class="code"><code>pnpm install
+pnpm start       # Expo dev server
+pnpm ios         # iOS dev build
+pnpm android     # Android dev build
+pnpm rebuild     # expo prebuild --clean</code></pre>
+        <ul class="compact">
+          <li><strong>App config</strong> — Supabase project URL and publishable key only; both are safe to ship in the client.</li>
+          <li><strong>Edge function</strong> — <span class="pill good">generate-notes</span> reads <code>GEMINI_API_KEY</code> from Supabase secrets. It retries up to 2 times with backoff.</li>
+          <li><strong>Database</strong> — migrations in <code>supabase/migrations</code>, applied in timestamp order.</li>
+          <li><strong>Builds</strong> — EAS profiles in <code>eas.json</code>.</li>
+          <li><strong>Secrets</strong> — <span class="pill warn">never commit</span> DB passwords, OAuth client secrets or API keys.</li>
+        </ul>
+      </section>
+
+      <section id="roadmap">
+        <h2 class="section-title"><span class="num">07</span> Roadmap</h2>
+        <p class="section-sub">Open items from <code>Cheat Sheet Notes.rtf</code>.</p>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Item</th><th>Type</th></tr>
+            <tr><td>Home screen issue</td><td><span class="pill warn">Critical bug</span></td></tr>
+            <tr><td>Forgot password flow</td><td><span class="pill warn">Critical bug</span></td></tr>
+            <tr><td>Add notes manually (no AI)</td><td><span class="pill">Feature</span></td></tr>
+            <tr><td>Create a checklist from a note</td><td><span class="pill">Feature</span></td></tr>
+            <tr><td>Move a folder into another folder</td><td><span class="pill">Feature</span></td></tr>
+            <tr><td>Deactivate or delete a user and all their records (storage objects need separate cleanup)</td><td><span class="pill">Feature</span></td></tr>
+            <tr><td>Light theme (currently dark only)</td><td><span class="pill">Feature</span></td></tr>
+          </table>
+        </div>
+      </section>
+
+      <footer class="page-footer">
+        Generated from the current source and Supabase migrations — not a static design doc, so re-check it against the code if the schema or flows change.
+      </footer>
+    </div>
+
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+      const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+      mermaid.initialize({ startOnLoad: true, theme: dark ? "dark" : "neutral", securityLevel: "loose" });
+    </script>
+  </body>
+</html>
